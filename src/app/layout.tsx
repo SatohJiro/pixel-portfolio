@@ -1,10 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono, Pixelify_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/hooks/useLanguage";
 import { siteConfig } from "@/config/site";
 import { generatePersonJsonLd, generateWebSiteJsonLd } from "@/config/seo";
 import "./globals.css";
+
+const pixelifySans = Pixelify_Sans({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-pixel",
+  display: "swap",
+});
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "vietnamese"],
@@ -116,7 +122,7 @@ export default function RootLayout({
   const websiteJsonLd = generateWebSiteJsonLd();
 
   return (
-    <html lang="en" suppressHydrationWarning className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${pixelifySans.variable}`}>
       <head>
         <script
           type="application/ld+json"

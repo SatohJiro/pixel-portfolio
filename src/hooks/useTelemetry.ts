@@ -5,8 +5,15 @@ import { TelemetryEvent } from "@/types";
 import { telemetry } from "@/lib/telemetry";
 
 export function useTelemetry() {
-  const [events, setEvents] = useState<TelemetryEvent[]>([]);
-  const [isOptedOut, setIsOptedOut] = useState<boolean>(false);
+  const [events, setEvents] = useState<TelemetryEvent[]>(() => {
+    if (typeof window === "undefined") return [];
+    return telemetry.getEvents();
+  });
+
+  const [isOptedOut, setIsOptedOut] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return telemetry.isOptedOut();
+  });
 
   const refreshState = useCallback(() => {
     setEvents(telemetry.getEvents());
@@ -14,8 +21,6 @@ export function useTelemetry() {
   }, []);
 
   useEffect(() => {
-    refreshState();
-
     const handleUpdate = () => {
       refreshState();
     };

@@ -10,10 +10,9 @@ import {
   experienceData,
   projectsData,
   awardsData,
-  skillsData,
 } from "@/data/portfolio-content";
-import { GlassModal } from "../glass/GlassModal";
-import { GlassButton } from "../glass/GlassButton";
+import { PixelModal } from "../pixel/PixelModal";
+import { PixelButton } from "../pixel/PixelButton";
 import {
   Printer,
   FileDown,
@@ -97,42 +96,43 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
   };
 
   return (
-    <GlassModal
+    <PixelModal
       isOpen={isOpen}
       onClose={onClose}
       maxWidth="2xl"
       title={
-        <div className="flex items-center gap-2.5">
-          <FileDown className="w-5 h-5 text-indigo-500" />
-          <span>{isVi ? "Hồ Sơ Năng Lực / ATS Resume" : "Curriculum Vitae / ATS Resume"}</span>
+        <div className="flex items-center gap-2">
+          <FileDown className="w-4 h-4 text-emerald-400" />
+          <span>{isVi ? "HỒ SƠ NĂNG LỰC / ATS RESUME" : "CURRICULUM VITAE / ATS RESUME"}</span>
         </div>
       }
     >
-      <div className="space-y-5">
+      <div className="space-y-4 font-mono">
         {/* Controls Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
-          {/* Language selector for resume */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-3 border-2 border-slate-900 dark:border-slate-100 bg-slate-50 dark:bg-slate-950">
+          {/* Language selector */}
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-              {isVi ? "Ngôn ngữ CV:" : "CV Language:"}
+            <span className="text-xs text-slate-700 dark:text-slate-300 font-bold">
+              {isVi ? "Ngôn ngữ:" : "Language:"}
             </span>
-            <div className="inline-flex rounded-lg p-0.5 border border-slate-200 dark:border-white/10 bg-white dark:bg-white/5">
+            <div className="inline-flex border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 text-xs">
               <button
                 onClick={() => setResumeLang("en")}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                className={`px-2.5 py-1 font-bold transition-all ${
                   resumeLang === "en"
-                    ? "bg-indigo-600 text-white shadow-xs"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
+                    ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 English (ATS)
               </button>
+              <div className="w-[1px] h-full bg-slate-300 dark:bg-slate-700" />
               <button
                 onClick={() => setResumeLang("vi")}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-all ${
+                className={`px-2.5 py-1 font-bold transition-all ${
                   resumeLang === "vi"
-                    ? "bg-indigo-600 text-white shadow-xs"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
+                    ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 Tiếng Việt
@@ -142,41 +142,41 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2">
-            <GlassButton
+            <PixelButton
               onClick={handlePrint}
               variant="primary"
               size="sm"
               icon={<Printer className="w-3.5 h-3.5" />}
             >
-              {isVi ? "In / Lưu PDF (A4)" : "Print / PDF Export"}
-            </GlassButton>
+              {isVi ? "In / Lưu PDF (A4)" : "Print / PDF (A4)"}
+            </PixelButton>
 
-            <GlassButton
+            <PixelButton
               onClick={handleDownloadJson}
-              variant="outline"
+              variant="secondary"
               size="sm"
               icon={<Code className="w-3.5 h-3.5" />}
               title="Download structured JSON resume"
             >
               JSON
-            </GlassButton>
+            </PixelButton>
           </div>
         </div>
 
         {/* Print Tip Banner */}
-        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800/40 text-[11px] text-blue-900 dark:text-blue-200">
-          <Info className="w-4 h-4 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
-          <span>
+        <div className="flex items-start gap-2 p-2.5 border-2 border-slate-900 dark:border-slate-100 bg-sky-50 dark:bg-sky-950/40 text-xs text-sky-950 dark:text-sky-200">
+          <Info className="w-4 h-4 shrink-0 mt-0.5 text-sky-600 dark:text-sky-400" />
+          <span className="font-sans">
             {isVi
               ? "Mẹo in: Trong hộp thoại Print của trình duyệt, bỏ tích 'Headers and footers' (Tiêu đề và chân trang) để bản in sạch sẽ, không bị chèn URL."
-              : "Print Tip: In browser print dialog, uncheck 'Headers and footers' to ensure clean output without browser URL text."}
+              : "Print Tip: In the browser print dialog, uncheck 'Headers and footers' to ensure clean output without browser URL text."}
           </span>
         </div>
 
         {/* ATS Resume Preview Paper Container (Monochromatic & Clean Alignment) */}
-        <div className="p-6 sm:p-8 rounded-xl bg-white text-slate-900 border border-slate-300 space-y-5 text-xs sm:text-sm font-sans shadow-lg">
+        <div className="p-6 sm:p-8 bg-white text-slate-900 border-2 border-slate-900 space-y-4 text-xs font-sans shadow-lg">
           {/* Header */}
-          <div className="text-center space-y-1 border-b border-slate-900 pb-4">
+          <div className="text-center space-y-1 border-b-2 border-slate-900 pb-3 font-mono">
             <h1 className="text-xl font-bold tracking-tight text-slate-950 uppercase">
               NGUYEN TRAN ANH
             </h1>
@@ -202,8 +202,8 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
           </div>
 
           {/* Professional Summary */}
-          <div className="space-y-1.5">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <div className="space-y-1">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
               {resumeLang === "en" ? "PROFESSIONAL SUMMARY" : "TỔNG QUAN NĂNG LỰC"}
             </h2>
             <div className="text-[11px] text-slate-800 leading-relaxed space-y-1">
@@ -212,12 +212,12 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
             </div>
           </div>
 
-          {/* Education (Clean 2-line layout) */}
-          <div className="space-y-1.5">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          {/* Education */}
+          <div className="space-y-1">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
               {resumeLang === "en" ? "EDUCATION" : "HỌC VẤN"}
             </h2>
-            <div className="space-y-1 text-[11px]">
+            <div className="space-y-0.5 text-[11px]">
               <div className="flex justify-between items-baseline font-bold text-slate-950">
                 <span>{educationData.school[resumeLang]}</span>
                 <span className="font-normal text-slate-700">
@@ -226,17 +226,17 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
               </div>
               <div className="flex justify-between items-baseline text-slate-800">
                 <span>{educationData.degree[resumeLang]} — {educationData.major[resumeLang]}</span>
-                <span className="font-semibold text-slate-950">GPA: {educationData.gpa[resumeLang]}</span>
+                <span className="font-bold text-slate-950">GPA: {educationData.gpa[resumeLang]} ({educationData.honors[resumeLang]})</span>
               </div>
             </div>
           </div>
 
           {/* Technical Skills */}
-          <div className="space-y-1.5">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <div className="space-y-1">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
               {resumeLang === "en" ? "TECHNICAL SKILLS" : "KỸ NĂNG CHUYÊN MÔN"}
             </h2>
-            <div className="grid grid-cols-1 gap-1 text-[11px] text-slate-800">
+            <div className="grid grid-cols-1 gap-0.5 text-[11px] text-slate-800">
               <div>
                 <strong className="text-slate-950">{resumeLang === "en" ? "Core Frontend:" : "Frontend Nòng Cốt:"}</strong> ReactJS, Next.js (App Router), Vue.js (Vue 2/3), TypeScript, JavaScript (ES6+), HTML5/CSS3/SCSS, Tailwind CSS.
               </div>
@@ -256,8 +256,8 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
           </div>
 
           {/* Work Experience */}
-          <div className="space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <div className="space-y-2.5">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
               {resumeLang === "en" ? "WORK EXPERIENCE" : "KINH NGHIỆM LÀM VIỆC"}
             </h2>
 
@@ -270,7 +270,7 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
                   <span className="font-normal text-slate-700">{exp.duration[resumeLang]}</span>
                 </div>
                 {exp.projectHighlights.map((p, idx) => (
-                  <div key={idx} className="space-y-0.5 pl-2 border-l border-slate-300">
+                  <div key={idx} className="space-y-0.5 pl-2 border-l-2 border-slate-300">
                     <div className="font-semibold text-slate-900">
                       {p.name} {p.client && (
                         <span className="text-slate-600 font-normal">
@@ -292,12 +292,12 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
             ))}
           </div>
 
-          {/* Honors & Awards (Separated into dedicated section) */}
-          <div className="space-y-1.5">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          {/* Honors & Awards */}
+          <div className="space-y-1">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
               {resumeLang === "en" ? "HONORS & AWARDS" : "GIẢI THƯỞNG & VINH DANH"}
             </h2>
-            <div className="space-y-1 text-[11px] text-slate-800">
+            <div className="space-y-0.5 text-[11px] text-slate-800">
               {awardsData.map((a) => (
                 <div key={a.id} className="flex justify-between items-baseline">
                   <span>
@@ -311,17 +311,17 @@ export function ResumeModal({ isOpen, onClose }: ResumeModalProps) {
         </div>
 
         {/* Footer Note */}
-        <div className="text-center">
+        <div className="text-center pt-2">
           <Link
             href={`/resume?lang=${resumeLang}`}
             target="_blank"
-            className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium inline-flex items-center gap-1"
+            className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-bold inline-flex items-center gap-1"
           >
             <span>{isVi ? "Mở toàn màn hình trang in Resume chuyên biệt" : "Open standalone printable resume page"}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
-    </GlassModal>
+    </PixelModal>
   );
 }

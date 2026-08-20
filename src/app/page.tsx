@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { GlowSpotlight } from "@/components/glass/GlowSpotlight";
+import { PixelGridBg } from "@/components/pixel/PixelGridBg";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
@@ -26,15 +26,15 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen selection:bg-indigo-500 selection:text-white">
-      {/* Background Ambient Glow Spotlight & Mesh */}
-      <GlowSpotlight />
+    <div className="relative min-h-screen selection:bg-emerald-500 selection:text-black">
+      {/* Crisp Retro Pixel Grid Background */}
+      <PixelGridBg />
 
-      {/* Floating Navbar */}
+      {/* Retro Pixel HUD Navbar */}
       <Navbar onOpenResumeModal={() => setIsResumeModalOpen(true)} />
 
       {/* Main Content Sections */}
-      <main className="relative z-10 space-y-8">
+      <main className="relative z-10 space-y-6 sm:space-y-10">
         <HeroSection onOpenResumeModal={() => setIsResumeModalOpen(true)} />
         <AboutSection />
         <ExperienceSection />
@@ -45,7 +45,7 @@ export default function HomePage() {
         <ContactSection />
       </main>
 
-      {/* Glass Footer */}
+      {/* Retro Arcade Footer */}
       <Footer
         onOpenPrivacyDrawer={() => setIsPrivacyDrawerOpen(true)}
         onOpenResumeModal={() => setIsResumeModalOpen(true)}

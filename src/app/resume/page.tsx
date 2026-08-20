@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -11,31 +11,26 @@ import {
   projectsData,
   awardsData,
 } from "@/data/portfolio-content";
+import { PixelButton } from "@/components/pixel/PixelButton";
 import { Printer, ArrowLeft, Info } from "lucide-react";
 
 function ResumeContent() {
   const searchParams = useSearchParams();
-  const initialLang = (searchParams.get("lang") as "en" | "vi") || "en";
-  const [lang, setLang] = useState<"en" | "vi">(initialLang);
-
-  useEffect(() => {
-    const urlLang = searchParams.get("lang") as "en" | "vi";
-    if (urlLang && (urlLang === "en" || urlLang === "vi")) {
-      setLang(urlLang);
-    }
-  }, [searchParams]);
+  const paramLang = searchParams.get("lang") === "vi" ? "vi" : "en";
+  const [selectedLang, setSelectedLang] = useState<"en" | "vi" | null>(null);
+  const lang = selectedLang ?? paramLang;
 
   const handlePrint = () => {
     window.print();
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-6 px-4 sm:px-6 lg:px-8 print:p-0 print:bg-white print:text-slate-950">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-6 px-4 sm:px-6 lg:px-8 font-mono print:p-0 print:bg-white print:text-slate-950">
       {/* Floating Action Controls Bar (hidden during print) */}
-      <div className="no-print max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 backdrop-blur-xl border border-slate-200 dark:border-white/10 shadow-lg">
+      <div className="no-print max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-4 p-3.5 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[3px_3px_0px_0px_#18181b] dark:shadow-[3px_3px_0px_0px_#ffffff]">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>{lang === "vi" ? "Trở về Portfolio" : "Back to Portfolio"}</span>
@@ -43,39 +38,41 @@ function ResumeContent() {
 
         <div className="flex items-center gap-3">
           {/* Lang Selector */}
-          <div className="inline-flex rounded-xl p-0.5 border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5">
+          <div className="inline-flex border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 text-xs">
             <button
-              onClick={() => setLang("en")}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-                lang === "en" ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
+              onClick={() => setSelectedLang("en")}
+              className={`px-2.5 py-1 font-bold transition-all cursor-pointer ${
+                lang === "en" ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900" : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
               }`}
             >
               English (ATS)
             </button>
+            <div className="w-[1px] bg-slate-300 dark:bg-slate-700" />
             <button
-              onClick={() => setLang("vi")}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-                lang === "vi" ? "bg-indigo-600 text-white shadow-xs" : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
+              onClick={() => setSelectedLang("vi")}
+              className={`px-2.5 py-1 font-bold transition-all cursor-pointer ${
+                lang === "vi" ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900" : "text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white"
               }`}
             >
               Tiếng Việt
             </button>
           </div>
 
-          <button
+          <PixelButton
             onClick={handlePrint}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md transition-all cursor-pointer"
+            variant="primary"
+            size="sm"
+            icon={<Printer className="w-4 h-4" />}
           >
-            <Printer className="w-4 h-4" />
-            <span>{lang === "vi" ? "In / Lưu PDF" : "Print / Save PDF"}</span>
-          </button>
+            {lang === "vi" ? "In / Lưu PDF" : "Print / PDF"}
+          </PixelButton>
         </div>
       </div>
 
       {/* Print Tip Banner for Standalone page (hidden during print) */}
-      <div className="no-print max-w-4xl mx-auto mb-4 flex items-center gap-2 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/40 text-xs text-blue-900 dark:text-blue-200 shadow-xs">
-        <Info className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />
-        <span>
+      <div className="no-print max-w-4xl mx-auto mb-4 flex items-center gap-2 p-3 border-2 border-slate-900 dark:border-slate-100 bg-sky-50 dark:bg-sky-950/40 text-xs text-sky-950 dark:text-sky-200">
+        <Info className="w-4 h-4 shrink-0 text-sky-600 dark:text-sky-400" />
+        <span className="font-sans">
           {lang === "vi"
             ? "Mẹo in PDF chuẩn đẹp: Trong hộp thoại Print của trình duyệt, chọn khổ giấy A4, lề Default, và bỏ chọn mục 'Headers and footers' (Tiêu đề và chân trang) để không bị in kèm URL trang web."
             : "Print Tip: In the browser print dialog, select Paper size: A4, Margins: Default, and UNCHECK 'Headers and footers' to remove browser URLs."}
@@ -83,9 +80,9 @@ function ResumeContent() {
       </div>
 
       {/* Main Resume Document Canvas (Monochromatic, Clean, A4-Optimized) */}
-      <main className="max-w-4xl mx-auto bg-white text-slate-950 p-8 sm:p-12 rounded-2xl shadow-xl space-y-5 font-sans text-xs sm:text-sm leading-relaxed border border-slate-200 print:p-0 print:border-none print:shadow-none print:rounded-none">
+      <main className="max-w-4xl mx-auto bg-white text-slate-950 p-8 sm:p-12 space-y-4 font-sans text-xs sm:text-sm leading-relaxed border-2 border-slate-900 shadow-xl print:p-0 print:border-none print:shadow-none">
         {/* Document Header */}
-        <header className="resume-header text-center space-y-1.5 border-b-2 border-slate-950 pb-4">
+        <header className="resume-header text-center space-y-1 border-b-2 border-slate-950 pb-3 font-mono">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950 uppercase">
             NGUYEN TRAN ANH
           </h1>
@@ -94,7 +91,7 @@ function ResumeContent() {
               ? "Software Engineer | Full-Stack & Frontend Developer"
               : "Kỹ sư Phần mềm | Lập trình viên Full-Stack & Frontend"}
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600">
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-600 pt-1">
             <span>{contactData.location[lang]}</span>
             <span>•</span>
             <span>{lang === "en" ? "Phone:" : "Điện thoại:"} {contactData.phone}</span>
@@ -112,7 +109,7 @@ function ResumeContent() {
 
         {/* Section 1: Professional Summary */}
         <section className="resume-section space-y-1">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
             {lang === "en" ? "PROFESSIONAL SUMMARY" : "TỔNG QUAN NĂNG LỰC"}
           </h2>
           <div className="text-xs text-slate-800 space-y-1 leading-normal">
@@ -121,9 +118,9 @@ function ResumeContent() {
           </div>
         </section>
 
-        {/* Section 2: Education (Clean 2-line structure) */}
+        {/* Section 2: Education */}
         <section className="resume-section space-y-1">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
             {lang === "en" ? "EDUCATION" : "HỌC VẤN"}
           </h2>
           <div className="resume-item space-y-0.5 text-xs text-slate-800">
@@ -135,17 +132,17 @@ function ResumeContent() {
             </div>
             <div className="flex justify-between items-baseline">
               <span>{educationData.degree[lang]} — {educationData.major[lang]}</span>
-              <span className="font-semibold text-slate-950">GPA: {educationData.gpa[lang]}</span>
+              <span className="font-bold text-slate-950">GPA: {educationData.gpa[lang]} ({educationData.honors[lang]})</span>
             </div>
           </div>
         </section>
 
         {/* Section 3: Technical Skills */}
         <section className="resume-section space-y-1">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
             {lang === "en" ? "TECHNICAL SKILLS" : "KỸ NĂNG CHUYÊN MÔN"}
           </h2>
-          <div className="resume-item grid grid-cols-1 gap-1 text-xs text-slate-800">
+          <div className="resume-item grid grid-cols-1 gap-0.5 text-xs text-slate-800">
             <div>
               <strong className="text-slate-950">{lang === "en" ? "Core Frontend:" : "Frontend Nòng Cốt:"}</strong> ReactJS, Next.js (App Router), Vue.js (Vue 2/3), TypeScript, JavaScript (ES6+), HTML5/CSS3/SCSS, Tailwind CSS.
             </div>
@@ -166,7 +163,7 @@ function ResumeContent() {
 
         {/* Section 4: Work Experience */}
         <section className="resume-section space-y-2.5">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
             {lang === "en" ? "WORK EXPERIENCE" : "KINH NGHIỆM LÀM VIỆC"}
           </h2>
 
@@ -179,7 +176,7 @@ function ResumeContent() {
                 <span className="font-normal text-slate-700">{exp.duration[lang]}</span>
               </div>
               {exp.projectHighlights.map((p, idx) => (
-                <div key={idx} className="space-y-0.5 pl-2.5 border-l border-slate-300">
+                <div key={idx} className="space-y-0.5 pl-2.5 border-l-2 border-slate-300">
                   <div className="font-semibold text-slate-900">
                     {p.name} {p.client && (
                       <span className="text-slate-600 font-normal">
@@ -203,7 +200,7 @@ function ResumeContent() {
 
         {/* Section 5: Key Projects */}
         <section className="resume-section space-y-2">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
             {lang === "en" ? "KEY PROJECTS" : "DỰ ÁN TIÊU BIỂU"}
           </h2>
           <div className="space-y-1.5 text-xs text-slate-800">
@@ -224,9 +221,9 @@ function ResumeContent() {
           </div>
         </section>
 
-        {/* Section 6: Honors & Awards (Separate section) */}
+        {/* Section 6: Honors & Awards */}
         <section className="resume-section space-y-1">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-950 border-b border-slate-400 pb-0.5 font-mono">
             {lang === "en" ? "HONORS & AWARDS" : "GIẢI THƯỞNG & VINH DANH"}
           </h2>
           <div className="resume-item space-y-1 text-xs text-slate-800">

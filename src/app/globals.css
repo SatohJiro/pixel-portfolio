@@ -5,35 +5,43 @@
 @theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card-bg: var(--card-bg);
   --color-card-border: var(--card-border);
   --color-text-muted: var(--text-muted);
+  --font-pixel: var(--font-pixel), "Press Start 2P", monospace;
+  --font-mono: var(--font-mono), monospace;
+  --font-sans: var(--font-sans), sans-serif;
 }
 
 @layer base {
   :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
-    --card-bg: rgba(255, 255, 255, 0.95);
-    --card-border: rgba(15, 23, 42, 0.12);
-    --text-muted: #475569;
-    --accent-cyan: #0284c7;
-    --accent-indigo: #4f46e5;
-    --accent-emerald: #059669;
-    --accent-amber: #d97706;
-    --accent-rose: #e11d48;
+    --background: #f4f3ee;
+    --foreground: #121316;
+    --card-bg: #ffffff;
+    --card-border: #18181b;
+    --card-border-subtle: #d4d4d8;
+    --card-shadow: #18181b;
+    --text-muted: #52525b;
+    --accent-pixel: #0284c7;
+    --pixel-green: #15803d;
+    --pixel-amber: #b45309;
+    --pixel-rose: #b91c1c;
+    --pixel-indigo: #4338ca;
   }
 
   .dark {
-    --background: #090d16;
-    --foreground: #f8fafc;
-    --card-bg: rgba(15, 23, 42, 0.7);
-    --card-border: rgba(255, 255, 255, 0.1);
-    --text-muted: #94a3b8;
-    --accent-cyan: #06b6d4;
-    --accent-indigo: #6366f1;
-    --accent-emerald: #10b981;
-    --accent-amber: #f59e0b;
-    --accent-rose: #f43f5e;
+    --background: #0d1117;
+    --foreground: #f0f6fc;
+    --card-bg: #161b22;
+    --card-border: #e6edf3;
+    --card-border-subtle: #30363d;
+    --card-shadow: #010409;
+    --text-muted: #9198a1;
+    --accent-pixel: #38bdf8;
+    --pixel-green: #22c55e;
+    --pixel-amber: #f59e0b;
+    --pixel-rose: #f87171;
+    --pixel-indigo: #818cf8;
   }
 
   * {
@@ -54,157 +62,163 @@
     color: var(--foreground);
     min-height: 100vh;
     overflow-x: hidden;
-    selection-background-color: rgba(99, 102, 241, 0.25);
+    selection-background-color: #22c55e;
+    selection-color: #000000;
   }
 }
 
-/* Subtle, Sleek Glassmorphism Primitives */
-.glass-panel {
-  background: var(--card-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--card-border);
-  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
+/* ==========================================================================
+   PIXEL ART & NEO-BRUTALIST UTILITIES
+   ========================================================================== */
+
+.font-pixel {
+  font-family: var(--font-pixel), "Press Start 2P", monospace;
 }
 
-.dark .glass-panel {
-  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.25);
+/* Pixel Card / Box Container */
+.pixel-box {
+  background-color: var(--card-bg);
+  border: 2px solid var(--card-border);
+  box-shadow: 3px 3px 0px 0px var(--card-shadow);
+  transition: all 0.15s ease-in-out;
 }
 
-.glass-panel-interactive {
-  background: var(--card-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--card-border);
-  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05);
-  transition: border-color 0.25s ease, transform 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+.pixel-box-sm {
+  background-color: var(--card-bg);
+  border: 2px solid var(--card-border);
+  box-shadow: 2px 2px 0px 0px var(--card-shadow);
 }
 
-.glass-panel-interactive:hover {
-  border-color: rgba(15, 23, 42, 0.22);
-  background: #ffffff;
-  box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+.pixel-box-interactive {
+  background-color: var(--card-bg);
+  border: 2px solid var(--card-border);
+  box-shadow: 3px 3px 0px 0px var(--card-shadow);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
 }
 
-.dark .glass-panel-interactive:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(15, 23, 42, 0.85);
-  box-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.35);
+.pixel-box-interactive:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0px 0px var(--card-shadow);
 }
 
-.glass-button {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.05), rgba(15, 23, 42, 0.02));
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--card-border);
+/* Pixel Mechanical Buttons */
+.pixel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono), monospace;
+  font-weight: 700;
+  border: 2px solid var(--card-border);
+  background-color: var(--card-bg);
   color: var(--foreground);
-  transition: all 0.2s ease;
+  box-shadow: 3px 3px 0px 0px var(--card-shadow);
+  transition: all 0.1s ease;
+  user-select: none;
+  cursor: pointer;
 }
 
-.dark .glass-button {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+.pixel-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px 0px var(--card-shadow);
 }
 
-.glass-button:hover {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.1), rgba(15, 23, 42, 0.04));
-  border-color: rgba(15, 23, 42, 0.25);
+.pixel-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px var(--card-shadow);
 }
 
-.dark .glass-button:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05));
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.glass-button-primary {
-  background: linear-gradient(135deg, #4f46e5, #0284c7);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+.pixel-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono), monospace;
+  font-weight: 700;
+  border: 2px solid var(--card-border);
+  background-color: #16a34a;
   color: #ffffff;
-  box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.35);
-  transition: all 0.2s ease;
+  box-shadow: 3px 3px 0px 0px var(--card-shadow);
+  transition: all 0.1s ease;
+  user-select: none;
+  cursor: pointer;
 }
 
-.glass-button-primary:hover {
-  background: linear-gradient(135deg, #4338ca, #0369a1);
-  box-shadow: 0 6px 20px 0 rgba(79, 70, 229, 0.45);
-  transform: translateY(-1px);
+.dark .pixel-btn-primary {
+  background-color: #22c55e;
+  color: #0d1117;
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #7c3aed 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.pixel-btn-primary:hover {
+  background-color: #15803d;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px 0px var(--card-shadow);
 }
 
-.dark .text-gradient {
-  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.dark .pixel-btn-primary:hover {
+  background-color: #4ade80;
 }
 
-.text-gradient-emerald {
-  background: linear-gradient(135deg, #059669 0%, #0284c7 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.pixel-btn-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px var(--card-shadow);
 }
 
-.dark .text-gradient-emerald {
-  background: linear-gradient(135deg, #34d399 0%, #06b6d4 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Pixel HUD Header & Badge */
+.pixel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-mono), monospace;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border: 2px solid currentColor;
+  box-shadow: 2px 2px 0px 0px currentColor;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
-.text-gradient-amber {
-  background: linear-gradient(135deg, #d97706 0%, #ea580c 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+/* Pixel Grid Background Texture */
+.pixel-grid-bg {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
 }
 
-.dark .text-gradient-amber {
-  background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.dark .pixel-grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
 }
 
-/* Subtle Ambient Mesh */
-@keyframes floatSlow {
-  0%, 100% {
-    transform: translate(0px, 0px);
-  }
-  50% {
-    transform: translate(15px, -20px);
-  }
+/* Subtle Dither Pattern */
+.pixel-dither-bg {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 0);
+  background-size: 8px 8px;
 }
 
-.animate-float-slow {
-  animation: floatSlow 20s ease-in-out infinite;
+.dark .pixel-dither-bg {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  background-size: 8px 8px;
 }
 
-.animate-float-reverse {
-  animation: floatSlow 24s ease-in-out infinite reverse;
-}
-
-/* Custom Scrollbar */
+/* Custom Pixel Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.05);
-}
-
-.dark ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.3);
+  background: var(--background);
+  border-left: 2px solid var(--card-border);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.4);
-  border-radius: 9999px;
+  background: var(--card-border);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.7);
+  background: #22c55e;
 }
 
 /* Print Optimization for ATS Resume */
@@ -249,14 +263,12 @@
     margin-bottom: 12px !important;
   }
 
-  /* Remove any automatic URL injection by browser print engines */
   a[href]:after {
     content: none !important;
   }
 
-  .glass-panel, .glass-panel-interactive {
+  .pixel-box, .pixel-box-interactive, .pixel-box-sm {
     background: transparent !important;
-    backdrop-filter: none !important;
     border: none !important;
     box-shadow: none !important;
   }

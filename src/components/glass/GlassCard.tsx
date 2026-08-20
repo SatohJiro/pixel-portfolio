@@ -14,7 +14,6 @@ interface GlassCardProps extends React.HTMLAttributes<HTMLDivElement> {
 export function GlassCard({
   children,
   className,
-  enableTilt = false,
   interactive = true,
   glowColor = "none",
   ...props

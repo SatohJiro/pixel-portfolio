@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { Language } from "@/types";
 import { telemetry } from "@/lib/telemetry";
 
@@ -15,27 +15,25 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("en");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    try {
-      const savedLang = localStorage.getItem("satoh_portfolio_lang") as Language;
-      if (savedLang && (savedLang === "en" || savedLang === "vi")) {
-        setLanguageState(savedLang);
-      } else {
-        // Check browser language
-        const browserLang = navigator.language.toLowerCase();
-        if (browserLang.startsWith("vi")) {
-          setLanguageState("vi");
-        }
-      }
-    } catch {
-      // fallback
+function getInitialLanguage(): Language {
+  if (typeof window === "undefined") return "en";
+  try {
+    const saved = localStorage.getItem("satoh_portfolio_lang") as Language;
+    if (saved && (saved === "en" || saved === "vi")) {
+      return saved;
     }
-    setMounted(true);
-  }, []);
+    const browserLang = navigator.language.toLowerCase();
+    if (browserLang.startsWith("vi")) {
+      return "vi";
+    }
+  } catch {
+    // fallback
+  }
+  return "en";
+}
+
+export function LanguageProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
