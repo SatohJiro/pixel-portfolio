@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: isGithubPages && repoName ? `/${repoName}` : "",
+  basePath: '/pixel-portfolio',
   trailingSlash: true,
 };
 
