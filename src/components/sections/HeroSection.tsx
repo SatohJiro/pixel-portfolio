@@ -60,9 +60,6 @@ export function HeroSection({ onOpenResumeModal }: HeroSectionProps) {
                 <span className="font-mono text-cyan-700 dark:text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded-lg border border-cyan-500/20 text-sm">
                   @SatohJiro
                 </span>
-                <span className="text-slate-500 dark:text-slate-400 text-sm font-normal">
-                  • {isVi ? "Thủ khoa ĐH Nông Lâm" : "Class Valedictorian"}
-                </span>
               </div>
             </div>
 
