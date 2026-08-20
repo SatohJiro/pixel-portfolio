@@ -106,7 +106,7 @@ function ResumeContent() {
             <span>•</span>
             <span>GitHub: github.com/SatohJiro</span>
             <span>•</span>
-            <span>Portfolio: satohjiro-2022.web.app</span>
+            <span>Portfolio: satohjiro.github.io</span>
           </div>
         </header>
 

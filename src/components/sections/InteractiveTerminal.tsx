@@ -178,8 +178,8 @@ export function InteractiveTerminal({ onOpenResumeModal }: InteractiveTerminalPr
           <div className="space-y-1 font-mono text-xs text-slate-200">
             <div>Email: <a href="mailto:trananhq2345@gmail.com" className="text-cyan-400 underline">trananhq2345@gmail.com</a></div>
             <div>Phone: <a href="tel:+84989702459" className="text-cyan-400 underline">(+84) 98 970 2459</a></div>
-            <div>GitHub: <a href="https://github.com/SatohJiro" target="_blank" className="text-cyan-400 underline">https://github.com/SatohJiro</a></div>
-            <div>LinkedIn: <a href="https://www.linkedin.com/in/satohjiro/" target="_blank" className="text-cyan-400 underline">https://www.linkedin.com/in/satohjiro/</a></div>
+            <div>GitHub: <a href="https://github.com/SatohJiro" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline">https://github.com/SatohJiro</a></div>
+            <div>LinkedIn: <a href="https://www.linkedin.com/in/satohjiro/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline">https://www.linkedin.com/in/satohjiro/</a></div>
           </div>
         ),
       });

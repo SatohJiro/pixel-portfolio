@@ -13,7 +13,7 @@ export const contactData: ContactInfo = {
   email: "trananhq2345@gmail.com",
   linkedin: "https://www.linkedin.com/in/satohjiro/",
   github: "https://github.com/SatohJiro",
-  portfolio: "https://satohjiro-2022.web.app/",
+  portfolio: "https://satohjiro.github.io/",
   location: {
     en: "Ho Chi Minh City, Vietnam",
     vi: "TP. Hồ Chí Minh, Việt Nam",
