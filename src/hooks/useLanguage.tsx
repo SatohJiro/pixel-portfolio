@@ -15,25 +15,9 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-function getInitialLanguage(): Language {
-  if (typeof window === "undefined") return "en";
-  try {
-    const saved = localStorage.getItem("satoh_portfolio_lang") as Language;
-    if (saved && (saved === "en" || saved === "vi")) {
-      return saved;
-    }
-    const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith("vi")) {
-      return "vi";
-    }
-  } catch {
-    // fallback
-  }
-  return "en";
-}
-
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>(getInitialLanguage);
+  // English is the default and optimized language for pixel fonts
+  const [language, setLanguageState] = useState<Language>("en");
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);

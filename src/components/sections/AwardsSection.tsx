@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { telemetry } from "@/lib/telemetry";
+import { sfx } from "@/lib/audio";
 
 export function AwardsSection() {
   const { isVi } = useLanguage();
@@ -26,11 +27,12 @@ export function AwardsSection() {
   };
 
   const handleCelebrate = (awardName: string) => {
+    sfx.levelUp();
     telemetry.track("click", `celebrate_award_${awardName}`);
     try {
       confetti({
-        particleCount: 50,
-        spread: 50,
+        particleCount: 60,
+        spread: 60,
         origin: { y: 0.7 },
       });
     } catch {
@@ -44,15 +46,15 @@ export function AwardsSection() {
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-2">
           <PixelBadge variant="amber" size="md">
-            {isVi ? "THÀNH TÍCH & GIẢI THƯỞNG" : "TROPHY ROOM & HONORS"}
+            {isVi ? "PHÒNG TRƯNG BÀY CÚP & CHIẾN TÍCH" : "TROPHY ROOM & BOSS DEFEATS"}
           </PixelBadge>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            {isVi ? "Giải Thưởng & Ghi Nhận Thành Tích" : "Honors & Key Recognitions"}
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-sans">
+            {isVi ? "Cúp Vinh Danh & Danh Hiệu Đạt Được" : "Trophy Room & Key Recognitions"}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-sans">
             {isVi
-              ? "Sự ghi nhận từ nhà trường và công ty cho thành tích học tập xuất sắc và đóng góp phát triển sản phẩm."
-              : "Recognitions from university leadership and company teams for academic performance and project contributions."}
+              ? "Chiến tích vinh quang được công nhận từ Nhà trường (Thủ khoa tốt nghiệp) và các đơn vị công nghệ."
+              : "Legendary accolades awarded by university leadership and technology organizations."}
           </p>
         </div>
 
@@ -62,11 +64,11 @@ export function AwardsSection() {
             <PixelCard
               key={award.id}
               interactive
-              variant={award.id === "valedictorian" ? "amber" : "default"}
+              variant="rpg"
               title={
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between w-full font-game text-[9px]">
                   <span>{award.year}</span>
-                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">
+                  <span className="text-amber-500 font-bold">
                     {award.badgeText[isVi ? "vi" : "en"]}
                   </span>
                 </div>
@@ -75,11 +77,11 @@ export function AwardsSection() {
             >
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 border-2 border-slate-900 dark:border-slate-100 bg-amber-50 dark:bg-amber-950/50">
+                  <div className="p-2 border-2 border-slate-900 dark:border-slate-100 bg-amber-100 dark:bg-amber-950/60 shadow-[2px_2px_0px_0px_#000]">
                     {awardIcons[award.iconName] || <Award className="w-5 h-5 text-amber-500" />}
                   </div>
                   <div>
-                    <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
+                    <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug font-sans">
                       {award.title[isVi ? "vi" : "en"]}
                     </h3>
                   </div>
@@ -100,9 +102,10 @@ export function AwardsSection() {
                   onClick={() => handleCelebrate(award.title.en)}
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs"
+                  soundType="levelUp"
+                  className="w-full text-xs font-game text-[10px]"
                 >
-                  {isVi ? "Chúc Mừng 🎉" : "Celebrate 🎉"}
+                  {isVi ? "CHÚC MỪNG 🎉" : "CELEBRATE 🎉"}
                 </PixelButton>
               </div>
             </PixelCard>

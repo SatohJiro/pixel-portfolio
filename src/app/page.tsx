@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { PixelGridBg } from "@/components/pixel/PixelGridBg";
+import { PixelSakuraBg } from "@/components/game/PixelSakuraBg";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/sections/HeroSection";
@@ -27,8 +27,8 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen selection:bg-emerald-500 selection:text-black">
-      {/* Crisp Retro Pixel Grid Background */}
-      <PixelGridBg />
+      {/* Pixel Game Sakura & Cherry Blossom Falling Background */}
+      <PixelSakuraBg />
 
       {/* Retro Pixel HUD Navbar */}
       <Navbar onOpenResumeModal={() => setIsResumeModalOpen(true)} />

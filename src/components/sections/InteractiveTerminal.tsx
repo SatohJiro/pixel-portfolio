@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { telemetry } from "@/lib/telemetry";
+import { sfx } from "@/lib/audio";
 
 interface TerminalLine {
   id: string;
@@ -54,6 +55,7 @@ export function InteractiveTerminal({ onOpenResumeModal }: InteractiveTerminalPr
     const trimmed = cmdStr.trim().toLowerCase();
     if (!trimmed) return;
 
+    sfx.click();
     telemetry.track("terminal_command", trimmed);
 
     setHistory((prev) => [...prev, trimmed]);
@@ -195,6 +197,7 @@ export function InteractiveTerminal({ onOpenResumeModal }: InteractiveTerminalPr
       });
       onOpenResumeModal();
     } else if (trimmed === "hire" || trimmed === "sudo hire") {
+      sfx.levelUp();
       try {
         confetti({
           particleCount: 60,

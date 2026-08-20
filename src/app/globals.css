@@ -8,40 +8,45 @@
   --color-card-bg: var(--card-bg);
   --color-card-border: var(--card-border);
   --color-text-muted: var(--text-muted);
-  --font-pixel: var(--font-pixel), "Press Start 2P", monospace;
+  --font-game: var(--font-game), "Press Start 2P", monospace;
+  --font-pixel: var(--font-pixel), "Pixelify Sans", monospace;
   --font-mono: var(--font-mono), monospace;
   --font-sans: var(--font-sans), sans-serif;
 }
 
 @layer base {
   :root {
-    --background: #f4f3ee;
-    --foreground: #121316;
+    --background: #f1f5f9;
+    --foreground: #0f172a;
     --card-bg: #ffffff;
-    --card-border: #18181b;
-    --card-border-subtle: #d4d4d8;
-    --card-shadow: #18181b;
-    --text-muted: #52525b;
+    --card-border: #0f172a;
+    --card-border-subtle: #cbd5e1;
+    --card-shadow: #0f172a;
+    --text-muted: #475569;
     --accent-pixel: #0284c7;
-    --pixel-green: #15803d;
-    --pixel-amber: #b45309;
-    --pixel-rose: #b91c1c;
-    --pixel-indigo: #4338ca;
+    --pixel-green: #16a34a;
+    --pixel-amber: #d97706;
+    --pixel-rose: #dc2626;
+    --pixel-indigo: #4f46e5;
+    --rpg-blue: #1e3a8a;
+    --rpg-gold: #fbbf24;
   }
 
   .dark {
-    --background: #0d1117;
-    --foreground: #f0f6fc;
-    --card-bg: #161b22;
-    --card-border: #e6edf3;
-    --card-border-subtle: #30363d;
-    --card-shadow: #010409;
-    --text-muted: #9198a1;
+    --background: #090d16;
+    --foreground: #f8fafc;
+    --card-bg: #111827;
+    --card-border: #f8fafc;
+    --card-border-subtle: #334155;
+    --card-shadow: #000000;
+    --text-muted: #94a3b8;
     --accent-pixel: #38bdf8;
     --pixel-green: #22c55e;
-    --pixel-amber: #f59e0b;
+    --pixel-amber: #fbbf24;
     --pixel-rose: #f87171;
     --pixel-indigo: #818cf8;
+    --rpg-blue: #172554;
+    --rpg-gold: #fde047;
   }
 
   * {
@@ -68,14 +73,40 @@
 }
 
 /* ==========================================================================
-   PIXEL ART & NEO-BRUTALIST UTILITIES
+   PIXEL GAME & RETRO RPG UTILITIES
    ========================================================================== */
 
-.font-pixel {
-  font-family: var(--font-pixel), "Press Start 2P", monospace;
+.font-game {
+  font-family: var(--font-game), "Press Start 2P", monospace;
 }
 
-/* Pixel Card / Box Container */
+.font-pixel {
+  font-family: var(--font-pixel), "Pixelify Sans", monospace;
+}
+
+/* Retro RPG Dialog Window Box */
+.rpg-window {
+  background-color: var(--card-bg);
+  border: 3px solid var(--card-border);
+  box-shadow: 4px 4px 0px 0px var(--card-shadow);
+  position: relative;
+  transition: all 0.15s ease-in-out;
+}
+
+.rpg-window-interactive {
+  background-color: var(--card-bg);
+  border: 3px solid var(--card-border);
+  box-shadow: 4px 4px 0px 0px var(--card-shadow);
+  position: relative;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.rpg-window-interactive:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--card-shadow);
+}
+
+/* Classic Pixel Box */
 .pixel-box {
   background-color: var(--card-bg);
   border: 2px solid var(--card-border);
@@ -101,7 +132,7 @@
   box-shadow: 5px 5px 0px 0px var(--card-shadow);
 }
 
-/* Pixel Mechanical Buttons */
+/* Retro Game Buttons */
 .pixel-btn {
   display: inline-flex;
   align-items: center;
@@ -127,57 +158,135 @@
   box-shadow: 0px 0px 0px 0px var(--card-shadow);
 }
 
+.pixel-btn-game {
+  font-family: var(--font-game), "Press Start 2P", monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  padding: 0.6rem 1.2rem;
+  border: 3px solid var(--card-border);
+  background-color: #f59e0b;
+  color: #000000;
+  box-shadow: 4px 4px 0px 0px var(--card-shadow);
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.1s ease;
+}
+
+.pixel-btn-game:hover {
+  background-color: #fbbf24;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--card-shadow);
+}
+
+.pixel-btn-game:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px var(--card-shadow);
+}
+
 .pixel-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-mono), monospace;
-  font-weight: 700;
-  border: 2px solid var(--card-border);
   background-color: #16a34a;
   color: #ffffff;
-  box-shadow: 3px 3px 0px 0px var(--card-shadow);
-  transition: all 0.1s ease;
-  user-select: none;
-  cursor: pointer;
+  border-color: var(--card-border);
 }
 
 .dark .pixel-btn-primary {
   background-color: #22c55e;
-  color: #0d1117;
+  color: #000000;
 }
 
 .pixel-btn-primary:hover {
   background-color: #15803d;
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0px 0px var(--card-shadow);
 }
 
 .dark .pixel-btn-primary:hover {
   background-color: #4ade80;
 }
 
-.pixel-btn-primary:active {
-  transform: translate(2px, 2px);
-  box-shadow: 0px 0px 0px 0px var(--card-shadow);
-}
-
-/* Pixel HUD Header & Badge */
+/* Pixel Badge */
 .pixel-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.25rem;
   font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
   font-weight: 700;
-  font-size: 0.75rem;
-  padding: 0.2rem 0.55rem;
-  border: 2px solid currentColor;
-  box-shadow: 2px 2px 0px 0px currentColor;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  padding: 0.2rem 0.5rem;
+  border: 1.5px solid var(--card-border);
+  box-shadow: 1.5px 1.5px 0px 0px var(--card-shadow);
+  user-select: none;
+  line-height: 1;
 }
 
-/* Pixel Grid Background Texture */
+/* RPG Status Bars */
+.rpg-bar-container {
+  border: 2px solid var(--card-border);
+  background-color: #000000;
+  height: 14px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 1px 1px 0px 0px var(--card-shadow);
+}
+
+.rpg-bar-fill-hp {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    #22c55e,
+    #22c55e 6px,
+    #15803d 6px,
+    #15803d 8px
+  );
+  transition: width 0.4s ease-out;
+}
+
+.rpg-bar-fill-mp {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    #38bdf8,
+    #38bdf8 6px,
+    #0284c7 6px,
+    #0284c7 8px
+  );
+  transition: width 0.4s ease-out;
+}
+
+.rpg-bar-fill-exp {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    #fbbf24,
+    #fbbf24 6px,
+    #d97706 6px,
+    #d97706 8px
+  );
+  transition: width 0.4s ease-out;
+}
+
+/* Blinking RPG Cursor */
+@keyframes rpgBlink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.rpg-cursor {
+  display: inline-block;
+  animation: rpgBlink 0.8s infinite;
+  color: #22c55e;
+}
+
+/* Retro Floating Sprite Animation */
+@keyframes spriteBob {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+.sprite-bob {
+  animation: spriteBob 2s ease-in-out infinite;
+}
+
+/* Pixel Grid Background */
 .pixel-grid-bg {
   background-size: 24px 24px;
   background-image: 
@@ -187,25 +296,14 @@
 
 .dark .pixel-grid-bg {
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
 }
 
-/* Subtle Dither Pattern */
-.pixel-dither-bg {
-  background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 0);
-  background-size: 8px 8px;
-}
-
-.dark .pixel-dither-bg {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 0);
-  background-size: 8px 8px;
-}
-
-/* Custom Pixel Scrollbar */
+/* Custom Scrollbar - Retro 8-bit */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -215,61 +313,24 @@
 
 ::-webkit-scrollbar-thumb {
   background: var(--card-border);
+  border: 1px solid var(--background);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #22c55e;
+  background: var(--accent-pixel);
 }
 
-/* Print Optimization for ATS Resume */
-@page {
-  size: A4 portrait;
-  margin: 12mm 15mm;
-}
-
+/* Print Overrides */
 @media print {
-  html, body {
+  body {
     background: #ffffff !important;
-    color: #0f172a !important;
-    font-size: 10pt !important;
-    line-height: 1.4 !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    color: #000000 !important;
   }
-
   .no-print {
     display: none !important;
   }
-
-  .print-only {
-    display: block !important;
-  }
-
-  .resume-section {
-    break-inside: auto;
-    page-break-inside: auto;
-  }
-
-  .resume-item {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-    margin-bottom: 8px !important;
-  }
-
-  .resume-header {
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
-    margin-bottom: 12px !important;
-  }
-
-  a[href]:after {
-    content: none !important;
-  }
-
-  .pixel-box, .pixel-box-interactive, .pixel-box-sm {
-    background: transparent !important;
-    border: none !important;
+  .pixel-box, .rpg-window {
     box-shadow: none !important;
+    border-color: #000000 !important;
   }
 }

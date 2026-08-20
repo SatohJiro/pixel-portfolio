@@ -5,8 +5,9 @@ import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { useLanguage } from "@/hooks/useLanguage";
 import { ThemeToggle } from "./ThemeToggle";
-import { LanguageToggle } from "./LanguageToggle";
+import { SoundToggle } from "../game/SoundToggle";
 import { PixelButton } from "../pixel/PixelButton";
+import { sfx } from "@/lib/audio";
 import {
   FileDown,
   Menu,
@@ -57,6 +58,7 @@ export function Navbar({ onOpenResumeModal }: NavbarProps) {
   }, []);
 
   const handleNavClick = (id: string) => {
+    sfx.select();
     telemetry.track("click", `nav_${id}`);
     setMobileMenuOpen(false);
   };
@@ -74,11 +76,10 @@ export function Navbar({ onOpenResumeModal }: NavbarProps) {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-150 ${
-        scrolled
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-150 ${scrolled
           ? "py-2 bg-white/95 dark:bg-slate-950/95 border-b-2 border-slate-900 dark:border-slate-100 shadow-[0_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[0_4px_0px_0px_rgba(255,255,255,0.05)]"
           : "py-3 bg-white/80 dark:bg-slate-950/80 border-b-2 border-slate-900/40 dark:border-slate-100/40"
-      }`}
+        }`}
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2">
         {/* Brand / Logo */}
@@ -109,11 +110,10 @@ export function Navbar({ onOpenResumeModal }: NavbarProps) {
                 key={item.id}
                 href={item.href}
                 onClick={() => handleNavClick(item.id)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-bold whitespace-nowrap transition-all duration-100 ${
-                  isActive
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono font-bold whitespace-nowrap transition-all duration-100 ${isActive
                     ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
                     : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`}
+                  }`}
               >
                 {iconMap[item.icon]}
                 <span>{item.label[isVi ? "vi" : "en"]}</span>
@@ -132,11 +132,10 @@ export function Navbar({ onOpenResumeModal }: NavbarProps) {
                 href={item.href}
                 onClick={() => handleNavClick(item.id)}
                 title={item.label[isVi ? "vi" : "en"]}
-                className={`flex items-center gap-1 px-2 py-1 text-xs font-mono font-bold whitespace-nowrap transition-all duration-100 ${
-                  isActive
+                className={`flex items-center gap-1 px-2 py-1 text-xs font-mono font-bold whitespace-nowrap transition-all duration-100 ${isActive
                     ? "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900"
                     : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-                }`}
+                  }`}
               >
                 {iconMap[item.icon]}
                 <span className="text-[11px]">{item.label[isVi ? "vi" : "en"]}</span>
@@ -145,9 +144,9 @@ export function Navbar({ onOpenResumeModal }: NavbarProps) {
           })}
         </nav>
 
-        {/* Actions (Language, Theme, Download CV, Mobile Menu Toggle) */}
-        <div className="flex items-center gap-2 shrink-0">
-          <LanguageToggle />
+        {/* Actions (Sound, Theme, Download CV, Mobile Menu Toggle) */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <SoundToggle />
           <ThemeToggle />
 
           <PixelButton
@@ -160,7 +159,7 @@ export function Navbar({ onOpenResumeModal }: NavbarProps) {
             icon={<FileDown className="w-3.5 h-3.5" />}
             className="hidden sm:inline-flex whitespace-nowrap"
           >
-            {isVi ? "Tải CV / In" : "Resume"}
+            {isVi ? "Tải CV" : "Resume"}
           </PixelButton>
 
           {/* Mobile Menu Trigger */}
@@ -185,11 +184,10 @@ export function Navbar({ onOpenResumeModal }: NavbarProps) {
                   key={item.id}
                   href={item.href}
                   onClick={() => handleNavClick(item.id)}
-                  className={`flex items-center gap-2 px-3 py-2 border-2 text-xs font-bold whitespace-nowrap transition-all ${
-                    isActive
+                  className={`flex items-center gap-2 px-3 py-2 border-2 text-xs font-bold whitespace-nowrap transition-all ${isActive
                       ? "border-slate-900 dark:border-slate-100 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff]"
                       : "border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900"
-                  }`}
+                    }`}
                 >
                   {iconMap[item.icon]}
                   <span>{item.label[isVi ? "vi" : "en"]}</span>

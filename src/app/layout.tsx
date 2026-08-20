@@ -1,10 +1,17 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono, Pixelify_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono, Pixelify_Sans, Press_Start_2P } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/hooks/useLanguage";
 import { siteConfig } from "@/config/site";
 import { generatePersonJsonLd, generateWebSiteJsonLd } from "@/config/seo";
 import "./globals.css";
+
+const pressStart2P = Press_Start_2P({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-game",
+  display: "swap",
+});
 
 const pixelifySans = Pixelify_Sans({
   subsets: ["latin", "latin-ext"],
@@ -122,7 +129,7 @@ export default function RootLayout({
   const websiteJsonLd = generateWebSiteJsonLd();
 
   return (
-    <html lang="en" suppressHydrationWarning className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${pixelifySans.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${pixelifySans.variable} ${pressStart2P.variable}`}>
       <head>
         <script
           type="application/ld+json"

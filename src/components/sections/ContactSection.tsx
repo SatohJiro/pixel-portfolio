@@ -17,12 +17,14 @@ import {
 } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "../icons/BrandIcons";
 import { telemetry } from "@/lib/telemetry";
+import { sfx } from "@/lib/audio";
 
 export function ContactSection() {
   const { isVi } = useLanguage();
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   const handleCopy = (text: string, key: string) => {
+    sfx.coin();
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     telemetry.track("click", `copy_${key}`);
@@ -35,15 +37,15 @@ export function ContactSection() {
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <PixelBadge variant="emerald" size="md">
-            {isVi ? "THÔNG TIN LIÊN HỆ" : "GET IN TOUCH"}
+            {isVi ? "TRẠM LIÊN LẠC GUILD HALL" : "GUILD HALL & CONTACT MATRIX"}
           </PixelBadge>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            {isVi ? "Kết Nối & Trao Đổi Cơ Hội Nghề Nghiệp" : "Let's Connect & Explore Opportunities"}
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-sans">
+            {isVi ? "Kết Nối & Chiêu Mộ Nhân Tài" : "Send Guild Invite & Get In Touch"}
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 font-sans">
             {isVi
-              ? "Bạn có thể liên hệ trực tiếp với tôi qua email, số điện thoại hoặc các mạng xã hội nghề nghiệp bên dưới."
-              : "Feel free to reach out directly via email, phone, or professional networks below."}
+              ? "Sẵn sàng nhận thư mời phỏng vấn, trao đổi hợp tác và tham gia các chiến dịch công nghệ mới."
+              : "Available for engineering interviews, team recruitment, and new project campaigns."}
           </p>
         </div>
 
@@ -52,11 +54,12 @@ export function ContactSection() {
           {/* Card 1: Email */}
           <PixelCard
             interactive
+            variant="rpg"
             className="p-5 flex flex-col justify-between space-y-4"
             title={
-              <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-between w-full font-game text-[9px]">
                 <span>EMAIL CHANNEL</span>
-                <span className="text-emerald-600 dark:text-emerald-400">PRIMARY</span>
+                <span className="text-emerald-500">PRIMARY</span>
               </div>
             }
           >
@@ -67,7 +70,7 @@ export function ContactSection() {
                 </div>
                 <button
                   onClick={() => handleCopy(contactData.email, "email")}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff] text-xs font-bold text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer select-none"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff] text-xs font-bold text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer select-none font-mono"
                   title="Copy Email Address"
                 >
                   {copiedKey === "email" ? (
@@ -85,7 +88,7 @@ export function ContactSection() {
               </div>
 
               <div>
-                <div className="text-[10px] text-slate-500 uppercase">Email Address</div>
+                <div className="text-[10px] text-slate-500 uppercase font-game">{isVi ? "ĐỊA CHỈ HÒM THƯ" : "EMAIL ADDRESS"}</div>
                 <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-0.5 select-all">
                   {contactData.email}
                 </div>
@@ -101,16 +104,20 @@ export function ContactSection() {
             <div className="pt-2">
               <a
                 href={siteConfig.links.email}
-                onClick={() => telemetry.track("click", "contact_direct_email")}
+                onClick={() => {
+                  sfx.coin();
+                  telemetry.track("click", "contact_direct_email");
+                }}
                 className="w-full inline-block"
               >
                 <PixelButton
                   variant="primary"
                   size="md"
+                  soundType="coin"
                   icon={<Mail className="w-4 h-4" />}
-                  className="w-full text-xs"
+                  className="w-full text-xs font-game text-[10px]"
                 >
-                  {isVi ? "Gửi Email Trực Tiếp" : "Send Direct Email"}
+                  {isVi ? "GỬI EMAIL TRỰC TIẾP" : "SEND DIRECT EMAIL"}
                 </PixelButton>
               </a>
             </div>
@@ -119,11 +126,12 @@ export function ContactSection() {
           {/* Card 2: Phone */}
           <PixelCard
             interactive
+            variant="rpg"
             className="p-5 flex flex-col justify-between space-y-4"
             title={
-              <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-between w-full font-game text-[9px]">
                 <span>PHONE / ZALO</span>
-                <span className="text-emerald-600 dark:text-emerald-400">DIRECT</span>
+                <span className="text-emerald-500">DIRECT</span>
               </div>
             }
           >
@@ -134,7 +142,7 @@ export function ContactSection() {
                 </div>
                 <button
                   onClick={() => handleCopy(contactData.phone, "phone")}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff] text-xs font-bold text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer select-none"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff] text-xs font-bold text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-800 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all cursor-pointer select-none font-mono"
                   title="Copy Phone Number"
                 >
                   {copiedKey === "phone" ? (
@@ -152,7 +160,7 @@ export function ContactSection() {
               </div>
 
               <div>
-                <div className="text-[10px] text-slate-500 uppercase">Phone / Zalo</div>
+                <div className="text-[10px] text-slate-500 uppercase font-game">{isVi ? "SỐ ĐIỆN THOẠI" : "PHONE NUMBER"}</div>
                 <div className="text-sm sm:text-base font-bold text-slate-900 dark:text-white mt-0.5 select-all">
                   {contactData.phone}
                 </div>
@@ -168,16 +176,20 @@ export function ContactSection() {
             <div className="pt-2">
               <a
                 href={siteConfig.links.phone}
-                onClick={() => telemetry.track("click", "contact_direct_phone")}
+                onClick={() => {
+                  sfx.coin();
+                  telemetry.track("click", "contact_direct_phone");
+                }}
                 className="w-full inline-block"
               >
                 <PixelButton
                   variant="secondary"
                   size="md"
+                  soundType="coin"
                   icon={<Phone className="w-4 h-4" />}
-                  className="w-full text-xs"
+                  className="w-full text-xs font-game text-[10px]"
                 >
-                  {isVi ? "Gọi Điện Thoại" : "Call Phone"}
+                  {isVi ? "GỌI ĐIỆN THOẠI" : "CALL PHONE"}
                 </PixelButton>
               </a>
             </div>
@@ -186,11 +198,12 @@ export function ContactSection() {
           {/* Card 3: Professional Profiles */}
           <PixelCard
             interactive
+            variant="rpg"
             className="p-5 space-y-4"
-            title="PROFESSIONAL PROFILES"
+            title="PROFESSIONAL NETWORKS"
           >
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white font-sans">
                 LinkedIn & GitHub
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-400 font-sans">
@@ -205,8 +218,11 @@ export function ContactSection() {
                 href={siteConfig.links.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => telemetry.track("click", "contact_card_linkedin")}
-                className="flex items-center justify-between p-3 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:bg-slate-100 dark:hover:bg-slate-800 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all group"
+                onClick={() => {
+                  sfx.click();
+                  telemetry.track("click", "contact_card_linkedin");
+                }}
+                className="flex items-center justify-between p-3 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:bg-slate-100 dark:hover:bg-slate-800 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-2.5">
                   <LinkedinIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
@@ -222,8 +238,11 @@ export function ContactSection() {
                 href={siteConfig.links.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() => telemetry.track("click", "contact_card_github")}
-                className="flex items-center justify-between p-3 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:bg-slate-100 dark:hover:bg-slate-800 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all group"
+                onClick={() => {
+                  sfx.click();
+                  telemetry.track("click", "contact_card_github");
+                }}
+                className="flex items-center justify-between p-3 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 shadow-[2px_2px_0px_0px_#18181b] dark:shadow-[2px_2px_0px_0px_#ffffff] hover:bg-slate-100 dark:hover:bg-slate-800 active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-2.5">
                   <GithubIcon className="w-4 h-4 text-slate-900 dark:text-white" />
@@ -240,11 +259,12 @@ export function ContactSection() {
           {/* Card 4: Location & Work Mode */}
           <PixelCard
             interactive
+            variant="rpg"
             className="p-5 space-y-4"
-            title="WORK SETUP & LOCATION"
+            title="GUILD HEADQUARTERS"
           >
             <div className="space-y-1">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2 font-sans">
                 <MapPin className="w-4 h-4 text-rose-500" />
                 <span>{contactData.location[isVi ? "vi" : "en"]}</span>
               </h3>
@@ -255,12 +275,12 @@ export function ContactSection() {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-2 pt-1">
-              <span className="px-2.5 py-1 text-xs font-bold border-2 border-emerald-600 dark:border-emerald-400 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300">
-                [✓ {isVi ? "Sẵn sàng nhận việc" : "Available to Join"}]
+            <div className="flex flex-wrap gap-2 pt-1 font-game text-[9px]">
+              <span className="px-2.5 py-1 border-2 border-emerald-600 dark:border-emerald-400 bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 font-bold">
+                [✓ {isVi ? "SẴN SÀNG NHẬN VIỆC" : "AVAILABLE TO JOIN"}]
               </span>
-              <span className="px-2.5 py-1 text-xs font-bold border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                [On-site / Hybrid / Remote]
+              <span className="px-2.5 py-1 border-2 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+                [ON-SITE / HYBRID / REMOTE]
               </span>
             </div>
           </PixelCard>
