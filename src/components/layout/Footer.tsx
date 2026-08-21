@@ -7,6 +7,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { Mail, Phone, ShieldCheck, Heart, Terminal } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "../icons/BrandIcons";
 import { PixelButton } from "../pixel/PixelButton";
+import { MegaManBattleScene } from "../game/MegaManBattleScene";
 import { telemetry } from "@/lib/telemetry";
 import { sfx } from "@/lib/audio";
 
@@ -22,6 +23,9 @@ export function Footer({ onOpenPrivacyDrawer, onOpenResumeModal }: FooterProps) 
   return (
     <footer className="relative z-10 border-t-3 border-slate-900 dark:border-slate-100 bg-white dark:bg-slate-950 py-12 mt-20 font-mono">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Mega Man X (Left) vs Zero (Right) Battle Arcade Scene */}
+        <MegaManBattleScene />
+
         {/* Retro Game Saved Header Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 p-3 border-2 border-slate-900 dark:border-slate-100 bg-slate-100 dark:bg-slate-900 shadow-[3px_3px_0px_0px_#000]">
           <div className="flex items-center gap-2 font-game text-[10px] sm:text-xs text-emerald-600 dark:text-emerald-400">

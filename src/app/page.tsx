@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { PixelGameLoader } from "@/components/game/PixelGameLoader";
 import { PixelSakuraBg } from "@/components/game/PixelSakuraBg";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -27,6 +28,9 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen selection:bg-emerald-500 selection:text-black">
+      {/* 8-bit Retro Pixel Game Intro Loading Screen (4.2s delay) */}
+      <PixelGameLoader minDurationMs={4200} />
+
       {/* Pixel Game Sakura & Cherry Blossom Falling Background */}
       <PixelSakuraBg />
 
