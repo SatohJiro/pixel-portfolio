@@ -38,36 +38,19 @@ export function PixelSakuraBg() {
       height = canvas.height = window.innerHeight;
     };
 
-    window.addEventListener("resize", handleResize);
-
     // Color palettes for Sakura petals
-    const lightPalette = [
-      "#f472b6", // Rose pink
-      "#fb7185", // Blossom coral
-      "#fbcfe8", // Soft petal pink
-      "#fda4af", // Pastel sakura
-      "#f9a8d4", // Vibrant blossom
-    ];
-
-    const darkPalette = [
-      "#f472b6", // Glow pink
-      "#fb7185", // Vibrant blossom
-      "#fda4af", // Bright petal
-      "#f9a8d4", // Neon cherry
-      "#fbcfe8", // Star pink
-    ];
-
+    const lightPalette = ["#f472b6", "#fb7185", "#fbcfe8", "#fda4af", "#f9a8d4"];
+    const darkPalette = ["#f472b6", "#fb7185", "#fda4af", "#f9a8d4", "#fbcfe8"];
     const palette = isDark ? darkPalette : lightPalette;
 
     // Create 45 drifting pixel petals
     const petalCount = Math.min(Math.floor(width / 30), 55);
     const petals: Petal[] = [];
-
     for (let i = 0; i < petalCount; i++) {
       petals.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        size: Math.floor(Math.random() * 4) + 3, // 3px to 6px pixel chunks
+        size: Math.floor(Math.random() * 4) + 3,
         speedY: Math.random() * 0.8 + 0.5,
         speedX: Math.random() * 0.6 + 0.3,
         angle: Math.random() * Math.PI * 2,
@@ -78,19 +61,28 @@ export function PixelSakuraBg() {
       });
     }
 
-    // Mouse breeze interaction
     let mouseX = -1000;
     let mouseY = -1000;
-
     const handleMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("resize", handleResize, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
-    // Animation Loop
+    let isTabVisible = true;
+    const handleVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (isTabVisible) {
+        animationFrameId = requestAnimationFrame(render);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Optimized Animation Loop
     const render = () => {
+      if (!isTabVisible) return;
       ctx.clearRect(0, 0, width, height);
 
       // Draw each pixel sakura petal
@@ -102,11 +94,12 @@ export function PixelSakuraBg() {
         p.y += p.speedY;
         p.x += p.speedX + Math.sin(p.angle) * p.swayRadius;
 
-        // Mouse breeze push effect
+        // Optimized mouse breeze push effect (Skip Math.sqrt if out of range)
         const dx = p.x - mouseX;
         const dy = p.y - mouseY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 120) {
+        const distSq = dx * dx + dy * dy;
+        if (distSq < 14400) {
+          const dist = Math.sqrt(distSq);
           const force = (120 - dist) / 120;
           p.x += (dx / dist) * force * 3;
           p.y += (dy / dist) * force * 2;
@@ -132,10 +125,6 @@ export function PixelSakuraBg() {
         const py = Math.floor(p.y);
         const s = p.size;
 
-        // 8-bit petal pixel pattern:
-        //  [#][#]
-        // [#][#][#]
-        //    [#]
         ctx.fillRect(px, py, s, s);
         ctx.fillRect(px + s, py + s * 0.5, s * 0.8, s * 0.8);
         ctx.fillRect(px - s * 0.5, py + s * 0.5, s * 0.6, s * 0.6);
@@ -151,6 +140,7 @@ export function PixelSakuraBg() {
     return () => {
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       cancelAnimationFrame(animationFrameId);
     };
   }, [isDark]);

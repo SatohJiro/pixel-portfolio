@@ -331,6 +331,9 @@
 
 .animate-bullet {
   animation: flyBulletTrue 0.32s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 @keyframes flyPlasmaTrue {
@@ -341,6 +344,9 @@
 
 .animate-plasma {
   animation: flyPlasmaTrue 0.42s ease-out forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 @keyframes flyHadangekiTrue {
@@ -550,13 +556,13 @@
 /* C. Blinding White Screen Flash Out */
 @keyframes screenWhiteFlash {
   0% { opacity: 0; }
-  25% { opacity: 1; }
-  70% { opacity: 0.95; }
+  15% { opacity: 1; }
+  60% { opacity: 1; }
   100% { opacity: 0; }
 }
 
 .animate-screen-white-flash {
-  animation: screenWhiteFlash 0.75s ease-out forwards;
+  animation: screenWhiteFlash 0.85s ease-out forwards;
 }
 
 /* D. Mega Man Classic Vertical Teleport Beam Out */
@@ -934,6 +940,9 @@
 
 .animate-x-step-recoil {
   animation: xStepRecoil 0.25s ease-out forwards;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* ================= JET DASH & AFTER-IMAGES (PHANTOM SILHOUETTES) ================= */
@@ -950,27 +959,42 @@
 
 .animate-after-image-cyan {
   animation: afterImageGhostFade 0.28s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-  filter: brightness(1.6) drop-shadow(0 0 15px #38bdf8) drop-shadow(0 0 30px #06b6d4);
+  filter: brightness(1.6) drop-shadow(0 0 15px #38bdf8);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .animate-after-image-amber {
   animation: afterImageGhostFade 0.35s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-  filter: brightness(1.7) drop-shadow(0 0 18px #f59e0b) drop-shadow(0 0 35px #fde047);
+  filter: brightness(1.7) drop-shadow(0 0 18px #f59e0b);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .animate-after-image-purple {
   animation: afterImageGhostFade 0.38s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-  filter: brightness(1.7) drop-shadow(0 0 20px #c084fc) drop-shadow(0 0 40px #a855f7);
+  filter: brightness(1.7) drop-shadow(0 0 20px #c084fc);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .animate-after-image-rose {
   animation: afterImageGhostFade 0.3s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-  filter: brightness(1.6) drop-shadow(0 0 16px #ef4444) drop-shadow(0 0 32px #f43f5e);
+  filter: brightness(1.6) drop-shadow(0 0 16px #ef4444);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .animate-after-image-emerald {
   animation: afterImageGhostFade 0.32s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
-  filter: brightness(1.7) drop-shadow(0 0 18px #10b981) drop-shadow(0 0 35px #2dd4bf);
+  filter: brightness(1.7) drop-shadow(0 0 18px #10b981);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Ground Jet Dust / Spark Exhaust */
@@ -991,6 +1015,9 @@
 
 .animate-jet-dust {
   animation: jetDustBurst 0.3s ease-out forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Jet Booster Thruster Flame Plume */
@@ -1013,6 +1040,9 @@
 .animate-jet-booster {
   animation: jetBoosterFlame 0.28s ease-out forwards;
   transform-origin: right center;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Heavy Giga Plasma Recoil Slide */
@@ -1025,6 +1055,9 @@
 
 .animate-x-giga-slide {
   animation: xGigaSlide 0.45s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* ================= SIGMA BOSS CINEMATIC DEATH & DISINTEGRATION ================= */
@@ -1041,17 +1074,23 @@
 
 .animate-sigma-death-stagger {
   animation: sigmaDeathStagger 0.35s infinite ease-in-out;
+  will-change: transform, filter;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 @keyframes sigmaDisintegrate {
   0% { transform: scale(1); opacity: 1; filter: brightness(3) drop-shadow(0 0 60px #ffffff); }
-  40% { transform: scale(1.18); opacity: 0.85; filter: brightness(4) drop-shadow(0 0 100px #38bdf8); }
-  80% { transform: scale(0.6) translateY(-10px); opacity: 0.4; filter: brightness(5) drop-shadow(0 0 140px #ffffff); }
-  100% { transform: scale(0.05) translateY(-20px); opacity: 0; filter: brightness(6) drop-shadow(0 0 160px #ffffff); }
+  25% { transform: scale(1.2); opacity: 1; filter: brightness(8) drop-shadow(0 0 100px #38bdf8); }
+  55% { transform: scale(1.4); opacity: 0.15; filter: brightness(10) drop-shadow(0 0 140px #ffffff); }
+  75%, 100% { transform: scale(0); opacity: 0; visibility: hidden; pointer-events: none; }
 }
 
 .animate-sigma-disintegrate {
-  animation: sigmaDisintegrate 1.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  animation: sigmaDisintegrate 0.35s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+  will-change: transform, opacity, filter;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Multi-point Boss Chain Detonations */
@@ -1064,6 +1103,9 @@
 
 .animate-chain-explosion {
   animation: chainExplosionPop 0.55s ease-out forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Grand Final Core Shatter Burst */
@@ -1075,6 +1117,9 @@
 
 .animate-boss-core-burst {
   animation: bossCoreFlashDetonate 0.8s cubic-bezier(0.15, 0.9, 0.25, 1) forwards;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* Print Overrides */

@@ -131,6 +131,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${pixelifySans.variable} ${pressStart2P.variable}`}>
       <head>
+        <link rel="preload" as="image" href="/assets/sprites/megaman_x.png" />
+        <link rel="preload" as="image" href="/assets/sprites/zero_saber.png" />
+        <link rel="preload" as="image" href="/assets/sprites/sigma_boss.png" />
+        <link rel="preload" as="image" href="/assets/sprites/metool.png" />
+        <link rel="preload" as="image" href="/assets/sprites/spiky_drone.png" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}

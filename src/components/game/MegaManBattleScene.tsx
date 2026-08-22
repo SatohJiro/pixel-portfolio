@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { sfx } from "@/lib/audio";
 import { Zap, Flame, Swords, Trophy, Sparkles } from "lucide-react";
@@ -77,6 +77,24 @@ export function MegaManBattleScene() {
   const [dualDialogueStep, setDualDialogueStep] = useState<0 | 1 | 2 | 3 | 4>(0);
   const [bossParryClash, setBossParryClash] = useState<"idle" | "waves_flying" | "deflected" | "detonated">("idle");
   const [dualDamageText, setDualDamageText] = useState<string | null>(null);
+
+  // Eagerly pre-decode all battle sprites into GPU memory on mount to prevent any first-action lag
+  useEffect(() => {
+    const sprites = [
+      "/assets/sprites/megaman_x.png",
+      "/assets/sprites/zero_saber.png",
+      "/assets/sprites/sigma_boss.png",
+      "/assets/sprites/metool.png",
+      "/assets/sprites/spiky_drone.png",
+    ];
+    sprites.forEach((src) => {
+      const img = new window.Image();
+      img.src = src;
+      if ("decode" in img) {
+        img.decode().catch(() => {});
+      }
+    });
+  }, []);
 
   // ================= X ACTIONS =================
   const spawnXDamage = (dmg: number, isCrit = false) => {
@@ -430,7 +448,7 @@ export function MegaManBattleScene() {
         setTimeout(() => sfx.supernovaDetonation(), 1050);
       }, 2000);
 
-      // Step 3: Seamless Final Blast & Disintegration (15500ms - 17300ms) [1800ms]
+      // Step 3: Seamless Final Blast & Disintegration (15500ms - 16400ms) [900ms]
       setTimeout(() => {
         setBossDyingStep(3);
         setDualDamageText("💬 SIGMA: \"CURSE YOU, X... ZERO... AAAAAGGGHH!\"");
@@ -442,7 +460,7 @@ export function MegaManBattleScene() {
       }, 3400);
     }, 12100);
 
-    // Phase 5: Iconic Victory Pose Stance (17300ms - 19800ms) [2500ms]
+    // Phase 5: Iconic Victory Pose Stance (16400ms - 18600ms) [2200ms]
     setTimeout(() => {
       setDualFinisherPhase("victory");
       setBossDyingStep(0);
@@ -450,14 +468,14 @@ export function MegaManBattleScene() {
       sfx.swordSheath();
       sfx.levelUp();
 
-      // Mega Man & Zero Beam Out from Dual Arena (19800ms - 20600ms)
+      // Mega Man & Zero Beam Out from Dual Arena (18600ms - 19400ms)
       setTimeout(() => {
         setTeleportingOut(true);
         sfx.teleport();
-      }, 2500);
-    }, 17300);
+      }, 2200);
+    }, 16400);
 
-    // Step 6: Close Dual Arena & Teleport Characters Back into Solo Arenas (20600ms)
+    // Step 6: Close Dual Arena & Teleport Characters Back into Solo Arenas (19400ms)
     setTimeout(() => {
       setDualFinisherActive(false);
       setDualFinisherPhase("idle");
@@ -1179,7 +1197,7 @@ export function MegaManBattleScene() {
               )}
 
               {/* ================= 2. BOSS SIGMA (Ground [50%, 10%] -> Airborne [50%, 8%]) ================= */}
-              {dualFinisherPhase !== "victory" && bossDyingStep !== 3 && (
+              {dualFinisherPhase !== "victory" && (
                 <div
                   className={`absolute left-1/2 -translate-x-1/2 z-10 flex flex-col items-center transition-all duration-500 ${
                     dualFinisherPhase === "x_charge_sky" ||
