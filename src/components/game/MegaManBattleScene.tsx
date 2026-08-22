@@ -54,6 +54,15 @@ export function MegaManBattleScene() {
   const [xCharging, setXCharging] = useState(false);
   const [plasmaSupernovaBlast, setPlasmaSupernovaBlast] = useState(false);
 
+  // Jet Dash & After-Images Visual Feedback
+  const [xAfterImages, setXAfterImages] = useState<Array<{ id: number; color: "cyan" | "amber" | "purple"; offset: number }>>([]);
+  const [xJetPlume, setXJetPlume] = useState(false);
+  const [xJetDust, setXJetDust] = useState(false);
+  const [xGigaSlideActive, setXGigaSlideActive] = useState(false);
+
+  const [zeroAfterImages, setZeroAfterImages] = useState<Array<{ id: number; color: "rose" | "emerald"; offset: number }>>([]);
+  const [zeroJetDust, setZeroJetDust] = useState(false);
+
   // ================= DUAL CROSS GAUGE =================
   const [dualGauge, setDualGauge] = useState(65);
   const [dualFinisherActive, setDualFinisherActive] = useState(false);
@@ -86,6 +95,19 @@ export function MegaManBattleScene() {
     setXState("shooting");
     setXCombo((c) => c + 1);
     setXScore((s) => s + 30);
+
+    // Jet Dash Recoil, Dust & Cyan Ghost After-Images
+    setXJetDust(true);
+    setXJetPlume(true);
+    const ghost1 = { id: Date.now(), color: "cyan" as const, offset: -8 };
+    const ghost2 = { id: Date.now() + 1, color: "cyan" as const, offset: -16 };
+    setXAfterImages([ghost1, ghost2]);
+
+    setTimeout(() => {
+      setXJetDust(false);
+      setXJetPlume(false);
+      setXAfterImages([]);
+    }, 280);
 
     const projId = Date.now();
     setXProjectiles((prev) => [...prev, { id: projId, type: "bullet" }]);
@@ -144,6 +166,22 @@ export function MegaManBattleScene() {
       setXShake(true);
       setTimeout(() => setXShake(false), 350);
 
+      // Grand Jet Burst Recoil Slide & Multi-Tier Ghost Trails
+      setXGigaSlideActive(true);
+      setXJetPlume(true);
+      setXJetDust(true);
+      const ghostA = { id: Date.now(), color: "amber" as const, offset: -10 };
+      const ghostP = { id: Date.now() + 1, color: "purple" as const, offset: -20 };
+      const ghostC = { id: Date.now() + 2, color: "cyan" as const, offset: -30 };
+      setXAfterImages([ghostA, ghostP, ghostC]);
+
+      setTimeout(() => {
+        setXGigaSlideActive(false);
+        setXJetPlume(false);
+        setXJetDust(false);
+        setXAfterImages([]);
+      }, 450);
+
       const projId = Date.now();
       setXProjectiles((prev) => [...prev, { id: projId, type: "plasma" }]);
       setTimeout(() => {
@@ -197,15 +235,6 @@ export function MegaManBattleScene() {
     }, 400);
   };
 
-  // ================= ZERO ACTIONS =================
-  const spawnZeroDamage = (dmg: number, isCrit = false) => {
-    const newText = { id: Date.now() + Math.random(), text: isCrit ? `IAIDO CRIT -${dmg}!` : `-${dmg}`, isCrit };
-    setZeroDamageTexts((prev) => [...prev.slice(-3), newText]);
-    setDualGauge((prev) => Math.min(100, prev + 15));
-    setTimeout(() => {
-      setZeroDamageTexts((prev) => prev.filter((t) => t.id !== newText.id));
-    }, 700);
-  };
 
   // ================= ABSOLUTE ANCHOR CINEMATIC DUAL FINISHER EXECUTION =================
   // 1. Solo Teleport Out (0-800ms) -> 2. Dual Arena Landing (800-1500ms) -> 3. Pre-Battle Dialogue Exchange (1500-5800ms) -> 4. X Rapid Stun -> 5. Zero Iaido Launch & X 100% Charge -> 6. Dramatic Pause -> 7. X Grand Giga Plasma -> 8. Boss Death -> 9. Victory Stance -> 10. Teleport Out from Dual -> 11. Solo Arenas Teleport In
@@ -377,7 +406,7 @@ export function MegaManBattleScene() {
     }, 11600);
 
     // Phase 4: Classic Capcom Boss Death Sequence (Bullet Impact at 12100ms)
-    // Step 1: Bullet Impacts Boss -> Stagger, Damage Flash, Last Words Dialogue (12100ms - 13100ms)
+    // Step 1: Bullet Impacts Boss -> Stagger, Damage Flash, Last Words Dialogue 1 (12100ms - 14100ms) [2000ms]
     setTimeout(() => {
       setDualFinisherPhase("boss_death");
       setBossDyingStep(1);
@@ -387,31 +416,33 @@ export function MegaManBattleScene() {
       setTimeout(() => {
         setXShake(false);
         setZeroShake(false);
-      }, 300);
-      setDualDamageText("💥 GRAND GIGA PLASMA DIRECT HIT!");
+      }, 400);
+      setDualDamageText("💬 SIGMA: \"IMPOSSIBLE... MY PERFECTION... DESTROYED?!\"");
 
-      // Step 2: Gradual Chain Explosions popping across Boss body (13100ms - 14100ms)
+      // Step 2: Continuous Multi-Stage Chain Detonations & System Core Collapse (14100ms - 15500ms) [1400ms]
       setTimeout(() => {
         setBossDyingStep(2);
+        setDualDamageText("💥 CORE OVERLOAD: -99999 HP! [SYSTEM COLLAPSE]");
         sfx.supernovaDetonation();
         setTimeout(() => sfx.supernovaDetonation(), 220);
-        setTimeout(() => sfx.supernovaDetonation(), 440);
-        setTimeout(() => sfx.supernovaDetonation(), 660);
-        setDualDamageText("💥 CHAIN DETONATION: -99999 HP! BOSS CORE DESTROYED!");
-      }, 1000);
+        setTimeout(() => sfx.supernovaDetonation(), 480);
+        setTimeout(() => sfx.supernovaDetonation(), 750);
+        setTimeout(() => sfx.supernovaDetonation(), 1050);
+      }, 2000);
 
-      // Step 3: Blinding White Screen Flash & Disintegration (14100ms - 14600ms)
+      // Step 3: Seamless Final Blast & Disintegration (15500ms - 17300ms) [1800ms]
       setTimeout(() => {
         setBossDyingStep(3);
+        setDualDamageText("💬 SIGMA: \"CURSE YOU, X... ZERO... AAAAAGGGHH!\"");
         sfx.dimensionShatter();
         setMetoolHp(0);
         setDroneHp(0);
         triggerMetoolDefeat();
         triggerDroneDefeat();
-      }, 2000);
+      }, 3400);
     }, 12100);
 
-    // Phase 5: Iconic Victory Pose Stance (14600ms - 16000ms)
+    // Phase 5: Iconic Victory Pose Stance (17300ms - 19800ms) [2500ms]
     setTimeout(() => {
       setDualFinisherPhase("victory");
       setBossDyingStep(0);
@@ -419,14 +450,14 @@ export function MegaManBattleScene() {
       sfx.swordSheath();
       sfx.levelUp();
 
-      // Mega Man & Zero Beam Out from Dual Arena (16000ms - 16700ms)
+      // Mega Man & Zero Beam Out from Dual Arena (19800ms - 20600ms)
       setTimeout(() => {
         setTeleportingOut(true);
         sfx.teleport();
-      }, 1400);
-    }, 14600);
+      }, 2500);
+    }, 17300);
 
-    // Step 6: Close Dual Arena & Teleport Characters Back into Solo Arenas (16700ms)
+    // Step 6: Close Dual Arena & Teleport Characters Back into Solo Arenas (20600ms)
     setTimeout(() => {
       setDualFinisherActive(false);
       setDualFinisherPhase("idle");
@@ -434,7 +465,7 @@ export function MegaManBattleScene() {
       setSoloTeleportIn(true);
       sfx.teleport();
 
-      // Step 7: Materialization Complete in Solo Arenas & Full Reset (17400ms)
+      // Step 7: Materialization Complete in Solo Arenas & Full Reset (21400ms)
       setTimeout(() => {
         setSoloTeleportIn(false);
         setZeroStrike(0);
@@ -444,18 +475,30 @@ export function MegaManBattleScene() {
         setDualDamageText(null);
         setMetoolHit(false);
         setDroneHit(false);
-      }, 700);
-    }, 16700);
+      }, 800);
+    }, 20600);
   };
 
-  // Zero Multi-Point Target-Locked Teleportation Combo
+  // ================= ZERO ACTIONS =================
+  const spawnZeroDamage = (dmg: number, isCrit = false) => {
+    const newText = { id: Date.now() + Math.random(), text: isCrit ? `IAIDO CRIT -${dmg}!` : `-${dmg}`, isCrit };
+    setZeroDamageTexts((prev) => [...prev.slice(-3), newText]);
+    setDualGauge((prev) => Math.min(100, prev + 15));
+    setTimeout(() => {
+      setZeroDamageTexts((prev) => prev.filter((t) => t.id !== newText.id));
+    }, 700);
+  };
+
+  // Zero 3-Step Triple Teleport Omni-Slash Combo (Bổ Trên Không -> Đâm Lưng -> Shin Messenkou)
   const handleZeroTeleportCombo = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (zeroState === "teleportCombo") return;
-
+    if (zeroState !== "idle" || dualFinisherActive) return;
     setZeroState("teleportCombo");
     setZeroCombo((c) => c + 3);
-    setZeroScore((s) => s + 150);
+    setZeroScore((s) => s + 60);
+
+    setZeroJetDust(true);
+    setTimeout(() => setZeroJetDust(false), 900);
 
     // Step 1: Teleport ABOVE Drone (200ms)
     setTimeout(() => {
@@ -463,6 +506,8 @@ export function MegaManBattleScene() {
       sfx.saber();
       setDroneHit(true);
       spawnZeroDamage(50);
+      const g1 = { id: Date.now(), color: "rose" as const, offset: -10 };
+      setZeroAfterImages([g1]);
       setTimeout(() => setDroneHit(false), 120);
     }, 200);
 
@@ -472,6 +517,8 @@ export function MegaManBattleScene() {
       sfx.saber();
       setDroneHit(true);
       spawnZeroDamage(60);
+      const g2 = { id: Date.now(), color: "emerald" as const, offset: 12 };
+      setZeroAfterImages([g2]);
       setTimeout(() => setDroneHit(false), 120);
     }, 500);
 
@@ -482,6 +529,10 @@ export function MegaManBattleScene() {
       sfx.chargeShot();
       setZeroShake(true);
       setTimeout(() => setZeroShake(false), 300);
+
+      const g3 = { id: Date.now(), color: "rose" as const, offset: -8 };
+      const g4 = { id: Date.now() + 1, color: "emerald" as const, offset: 8 };
+      setZeroAfterImages([g3, g4]);
 
       setDroneHit(true);
       spawnZeroDamage(110, true);
@@ -501,6 +552,7 @@ export function MegaManBattleScene() {
     setTimeout(() => {
       setZeroTeleportPhase(0);
       setZeroState("idle");
+      setZeroAfterImages([]);
     }, 1150);
   };
 
@@ -517,10 +569,16 @@ export function MegaManBattleScene() {
     setTimeout(() => {
       setIaidoPhase("dash");
       setIaidoSlashLine(true);
+      setZeroJetDust(true);
       sfx.saber();
       setDroneHit(true);
       setZeroCombo((c) => c + 3);
       setZeroScore((s) => s + 80);
+
+      const g1 = { id: Date.now(), color: "emerald" as const, offset: -25 };
+      const g2 = { id: Date.now() + 1, color: "rose" as const, offset: -50 };
+      const g3 = { id: Date.now() + 2, color: "emerald" as const, offset: -75 };
+      setZeroAfterImages([g1, g2, g3]);
     }, 380);
 
     // Phase 2: Stand Behind Enemy & Sheath Sword (650ms)
@@ -561,6 +619,8 @@ export function MegaManBattleScene() {
       setIaidoPhase("idle");
       setZeroState("idle");
       setDroneHit(false);
+      setZeroJetDust(false);
+      setZeroAfterImages([]);
     }, 1450);
   };
 
@@ -1166,6 +1226,8 @@ export function MegaManBattleScene() {
                     className={`relative w-32 h-32 sm:w-40 sm:h-40 ${
                       dualFinisherPhase === "boss_death" && (bossDyingStep === 1 || bossDyingStep === 2)
                         ? "animate-sigma-death-stagger"
+                        : dualFinisherPhase === "boss_death" && bossDyingStep === 3
+                        ? "animate-sigma-disintegrate"
                         : bossParryClash === "deflected"
                         ? "shake-arena"
                         : ""
@@ -1218,17 +1280,27 @@ export function MegaManBattleScene() {
                       </div>
                     )}
 
-                    {/* Phase 4 (Step 2): Sequential Chain Fireball Explosions Across Boss Body */}
+                    {/* Phase 4 (Step 2): Rapid Continuous Chain Fireball Explosions Across Boss Body */}
                     {dualFinisherPhase === "boss_death" && bossDyingStep === 2 && (
                       <div className="absolute -inset-10 pointer-events-none z-40">
                         {/* Explosion 1: Chest Core */}
-                        <div className="absolute top-4 left-4 w-20 h-20 rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-white animate-chain-explosion shadow-[0_0_40px_#f59e0b]" />
+                        <div className="absolute top-6 left-6 w-20 h-20 rounded-full bg-gradient-to-tr from-amber-400 via-rose-500 to-white animate-chain-explosion shadow-[0_0_40px_#f59e0b]" />
                         {/* Explosion 2: Left Shoulder */}
-                        <div className="absolute top-10 right-2 w-24 h-24 rounded-full bg-gradient-to-tr from-yellow-300 via-red-600 to-white animate-chain-explosion shadow-[0_0_45px_#ef4444]" style={{ animationDelay: "0.12s" }} />
+                        <div className="absolute top-2 right-2 w-24 h-24 rounded-full bg-gradient-to-tr from-yellow-300 via-red-600 to-white animate-chain-explosion shadow-[0_0_45px_#ef4444]" style={{ animationDelay: "0.22s" }} />
                         {/* Explosion 3: Right Arm */}
-                        <div className="absolute -top-2 right-6 w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-300 via-blue-500 to-white animate-chain-explosion shadow-[0_0_40px_#38bdf8]" style={{ animationDelay: "0.22s" }} />
-                        {/* Explosion 4: Final Overload Burst */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-white animate-chain-explosion shadow-[0_0_80px_#ffffff]" style={{ animationDelay: "0.34s" }} />
+                        <div className="absolute top-16 -left-2 w-20 h-20 rounded-full bg-gradient-to-tr from-cyan-300 via-blue-500 to-white animate-chain-explosion shadow-[0_0_40px_#38bdf8]" style={{ animationDelay: "0.48s" }} />
+                        {/* Explosion 4: Head Overload */}
+                        <div className="absolute -top-3 left-1/3 w-22 h-22 rounded-full bg-gradient-to-tr from-rose-500 via-amber-300 to-white animate-chain-explosion shadow-[0_0_50px_#f59e0b]" style={{ animationDelay: "0.75s" }} />
+                        {/* Explosion 5: Lower Core Breach */}
+                        <div className="absolute bottom-2 right-6 w-22 h-22 rounded-full bg-gradient-to-tr from-yellow-400 via-purple-600 to-white animate-chain-explosion shadow-[0_0_45px_#c084fc]" style={{ animationDelay: "1.05s" }} />
+                      </div>
+                    )}
+
+                    {/* Phase 4 (Step 3): Grand Climax Final Shatter Explosion */}
+                    {dualFinisherPhase === "boss_death" && bossDyingStep === 3 && (
+                      <div className="absolute -inset-12 pointer-events-none z-45 flex items-center justify-center">
+                        <div className="w-44 h-44 rounded-full bg-white animate-boss-core-burst shadow-[0_0_100px_#ffffff,0_0_150px_#38bdf8]" />
+                        <div className="absolute inset-0 rounded-full border-4 border-cyan-300 shadow-[0_0_60px_#22d3ee] animate-ping" />
                       </div>
                     )}
                   </div>
@@ -1511,19 +1583,61 @@ export function MegaManBattleScene() {
                       </div>
                     )}
 
-                    {/* Pixel Art Mega Man X Image */}
+                    {/* Pixel Art Mega Man X Image with Jet Dash & After-Images */}
                     <div
                       className={`relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28 transition-transform duration-100 ${
-                        xState === "shooting" ? "animate-x-step-recoil" : ""
+                        xGigaSlideActive
+                          ? "animate-x-giga-slide"
+                          : xState === "shooting"
+                          ? "animate-x-step-recoil"
+                          : ""
                       }`}
                       style={{ imageRendering: "pixelated" }}
                     >
+                      {/* Ground Jet Dust Exhaust */}
+                      {xJetDust && (
+                        <div className="absolute -bottom-2 -left-3 pointer-events-none z-0 flex items-center">
+                          <div className="w-5 h-3 bg-gradient-to-l from-cyan-300 via-slate-300 to-transparent rounded-full animate-jet-dust blur-2xs" />
+                          <div className="w-3 h-2 -ml-1 bg-white rounded-full animate-jet-dust" />
+                        </div>
+                      )}
+
+                      {/* Jet Booster Thruster Plume */}
+                      {xJetPlume && (
+                        <div className="absolute top-[45%] -left-4 -translate-y-1/2 pointer-events-none z-0">
+                          <div className="w-8 h-4 bg-gradient-to-l from-cyan-400 via-sky-200 to-transparent rounded-full animate-jet-booster shadow-[0_0_15px_#38bdf8]" />
+                        </div>
+                      )}
+
+                      {/* Ghost After-Images Trailing Behind X */}
+                      {xAfterImages.map((ghost) => (
+                        <div
+                          key={ghost.id}
+                          className={`absolute inset-0 pointer-events-none z-0 ${
+                            ghost.color === "amber"
+                              ? "animate-after-image-amber"
+                              : ghost.color === "purple"
+                              ? "animate-after-image-purple"
+                              : "animate-after-image-cyan"
+                          }`}
+                          style={{ transform: `translateX(${ghost.offset}px)` }}
+                        >
+                          <Image
+                            src="/assets/sprites/megaman_x.png"
+                            alt="Mega Man X Phantom After-Image"
+                            fill
+                            sizes="140px"
+                            className="object-contain opacity-70"
+                          />
+                        </div>
+                      ))}
+
                       <Image
                         src="/assets/sprites/megaman_x.png"
                         alt="Mega Man X Pixel Art Sprite"
                         fill
                         sizes="140px"
-                        className="object-contain drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]"
+                        className="object-contain drop-shadow-[0_0_12px_rgba(6,182,212,0.8)] relative z-10"
                         priority
                       />
 
@@ -1773,12 +1887,38 @@ export function MegaManBattleScene() {
                       }`}
                       style={{ imageRendering: "pixelated" }}
                     >
+                      {/* Ground Jet Dust */}
+                      {zeroJetDust && (
+                        <div className="absolute -bottom-2 -left-3 pointer-events-none z-0 flex items-center">
+                          <div className="w-6 h-3 bg-gradient-to-l from-rose-500 via-emerald-300 to-transparent rounded-full animate-jet-dust blur-2xs" />
+                        </div>
+                      )}
+
+                      {/* Zero Ghost After-Images */}
+                      {zeroAfterImages.map((ghost) => (
+                        <div
+                          key={ghost.id}
+                          className={`absolute inset-0 pointer-events-none z-0 ${
+                            ghost.color === "emerald" ? "animate-after-image-emerald" : "animate-after-image-rose"
+                          }`}
+                          style={{ transform: `translateX(${ghost.offset}px)` }}
+                        >
+                          <Image
+                            src="/assets/sprites/zero_saber.png"
+                            alt="Zero Phantom After-Image"
+                            fill
+                            sizes="140px"
+                            className="object-contain opacity-70"
+                          />
+                        </div>
+                      ))}
+
                       <Image
                         src="/assets/sprites/zero_saber.png"
                         alt="Zero Z-Saber Pixel Art Sprite"
                         fill
                         sizes="140px"
-                        className="object-contain drop-shadow-[0_0_14px_rgba(239,68,68,0.85)]"
+                        className="object-contain drop-shadow-[0_0_14px_rgba(239,68,68,0.85)] relative z-10"
                         priority
                       />
                       {/* Glowing Saber Pulse */}
