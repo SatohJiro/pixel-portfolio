@@ -822,15 +822,6 @@
   animation: sRankPulse 0.8s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
 }
 
-/* Elemental Mode Auras */
-.flame-aura {
-  filter: drop-shadow(0 0 16px rgba(249, 115, 22, 0.9)) hue-rotate(-25deg);
-}
-
-.ice-aura {
-  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.9)) hue-rotate(140deg);
-}
-
 /* Mega Man X Giga Plasma Supernova Explosion */
 @keyframes plasmaSupernova {
   0% { transform: scale(0.2) rotate(0deg); opacity: 1; filter: drop-shadow(0 0 20px #38bdf8); }

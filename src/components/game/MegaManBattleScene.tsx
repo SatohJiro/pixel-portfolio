@@ -54,9 +54,7 @@ export function MegaManBattleScene() {
   const [xCharging, setXCharging] = useState(false);
   const [plasmaSupernovaBlast, setPlasmaSupernovaBlast] = useState(false);
 
-  // ================= ELEMENTAL CHIPS & DUAL CROSS GAUGE =================
-  const [activeChip, setActiveChip] = useState<"NORMAL" | "FIRE" | "ICE">("NORMAL");
-  const [eTankCount, setETankCount] = useState(2);
+  // ================= DUAL CROSS GAUGE =================
   const [dualGauge, setDualGauge] = useState(65);
   const [dualFinisherActive, setDualFinisherActive] = useState(false);
   const [dualFinisherPhase, setDualFinisherPhase] = useState<"idle" | "boss_parry" | "x_rapid" | "zero_combo" | "x_charge_sky" | "boss_death" | "victory">("idle");
@@ -71,29 +69,9 @@ export function MegaManBattleScene() {
   const [bossParryClash, setBossParryClash] = useState<"idle" | "waves_flying" | "deflected" | "detonated">("idle");
   const [dualDamageText, setDualDamageText] = useState<string | null>(null);
 
-  // Use E-Tank for instant full recovery and EXP boost
-  const handleUseETank = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    if (eTankCount <= 0) return;
-    setETankCount((prev) => prev - 1);
-    sfx.levelUp();
-    setXScore((s) => s + 300);
-    setZeroScore((s) => s + 300);
-    setDualGauge(100);
-  };
-
-  // Change Elemental Chip
-  const handleSelectChip = (chip: "NORMAL" | "FIRE" | "ICE", e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setActiveChip(chip);
-    sfx.chargeHum();
-  };
-
   // ================= X ACTIONS =================
   const spawnXDamage = (dmg: number, isCrit = false) => {
-    const chipBonus = activeChip === "FIRE" ? 15 : activeChip === "ICE" ? 10 : 0;
-    const totalDmg = dmg + chipBonus;
-    const newText = { id: Date.now() + Math.random(), text: isCrit ? `CRITICAL -${totalDmg}!` : `-${totalDmg}`, isCrit };
+    const newText = { id: Date.now() + Math.random(), text: isCrit ? `CRITICAL -${dmg}!` : `-${dmg}`, isCrit };
     setXDamageTexts((prev) => [...prev.slice(-3), newText]);
     setDualGauge((prev) => Math.min(100, prev + 12));
     setTimeout(() => {
@@ -121,7 +99,7 @@ export function MegaManBattleScene() {
       setTimeout(() => setMetoolHit(false), 150);
 
       setMetoolHp((prev) => {
-        const next = prev - (activeChip === "FIRE" ? 50 : 35);
+        const next = prev - 35;
         if (next <= 0) {
           triggerMetoolDefeat();
           return 0;
@@ -185,7 +163,7 @@ export function MegaManBattleScene() {
         }, 400);
 
         setMetoolHp((prev) => {
-          const next = prev - (activeChip === "FIRE" ? 160 : 140);
+          const next = prev - 140;
           if (next <= 0) {
             triggerMetoolDefeat();
             return 0;
@@ -221,9 +199,7 @@ export function MegaManBattleScene() {
 
   // ================= ZERO ACTIONS =================
   const spawnZeroDamage = (dmg: number, isCrit = false) => {
-    const chipBonus = activeChip === "FIRE" ? 20 : activeChip === "ICE" ? 15 : 0;
-    const totalDmg = dmg + chipBonus;
-    const newText = { id: Date.now() + Math.random(), text: isCrit ? `IAIDO CRIT -${totalDmg}!` : `-${totalDmg}`, isCrit };
+    const newText = { id: Date.now() + Math.random(), text: isCrit ? `IAIDO CRIT -${dmg}!` : `-${dmg}`, isCrit };
     setZeroDamageTexts((prev) => [...prev.slice(-3), newText]);
     setDualGauge((prev) => Math.min(100, prev + 15));
     setTimeout(() => {
@@ -620,51 +596,6 @@ export function MegaManBattleScene() {
             <span className="tracking-wider">CAPCOM 16-BIT HUNTERS ARENA</span>
           </div>
 
-          {/* ELEMENT CHIP UPGRADE DOCK */}
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] text-slate-400 font-bold mr-1">CHIP:</span>
-            <button
-              type="button"
-              onClick={(e) => handleSelectChip("NORMAL", e)}
-              className={`px-2 py-1 text-[10px] font-black border transition-all cursor-pointer ${
-                activeChip === "NORMAL"
-                  ? "bg-cyan-500 text-black border-cyan-300 shadow-[0_0_10px_#06b6d4]"
-                  : "bg-slate-900 text-slate-400 border-slate-700 hover:border-cyan-400 hover:text-cyan-300"
-              }`}
-            >
-              ⚡ NORMAL
-            </button>
-            <button
-              type="button"
-              onClick={(e) => handleSelectChip("FIRE", e)}
-              className={`px-2 py-1 text-[10px] font-black border transition-all cursor-pointer ${
-                activeChip === "FIRE"
-                  ? "bg-orange-500 text-black border-orange-300 shadow-[0_0_12px_#f97316]"
-                  : "bg-slate-900 text-slate-400 border-slate-700 hover:border-orange-500 hover:text-orange-400"
-              }`}
-            >
-              🔥 NOVA FLAME
-            </button>
-            <button
-              type="button"
-              onClick={(e) => handleSelectChip("ICE", e)}
-              className={`px-2 py-1 text-[10px] font-black border transition-all cursor-pointer ${
-                activeChip === "ICE"
-                  ? "bg-sky-400 text-black border-sky-200 shadow-[0_0_12px_#38bdf8]"
-                  : "bg-slate-900 text-slate-400 border-slate-700 hover:border-sky-400 hover:text-sky-300"
-              }`}
-            >
-              ❄️ FROST ZERO
-            </button>
-            <button
-              type="button"
-              onClick={handleUseETank}
-              disabled={eTankCount <= 0}
-              className="px-2 py-1 text-[10px] font-black bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-300 shadow-[0_0_8px_#10b981] disabled:opacity-40 transition-all cursor-pointer"
-            >
-              🧪 E-TANK ({eTankCount})
-            </button>
-          </div>
 
           {/* DUAL CROSS GAUGE & FINISHER BUTTON */}
           <div className="flex items-center gap-3">
@@ -904,7 +835,7 @@ export function MegaManBattleScene() {
                     teleportingOut ? "animate-character-beam-out" : "animate-in zoom-in-95 duration-200"
                   }`}
                 >
-                  <div className={`relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28 ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}>
+                  <div className="relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28">
                     <Image
                       src="/assets/sprites/megaman_x.png"
                       alt="Mega Man X Victory Pose"
@@ -959,7 +890,7 @@ export function MegaManBattleScene() {
                     </div>
                   )}
 
-                  <div className={`relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28 ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}>
+                  <div className="relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28">
                     {/* Full-Body Escalating Power Charge Aura */}
                     {xDualChargeTier > 0 && (
                       <div
@@ -1348,7 +1279,7 @@ export function MegaManBattleScene() {
                     teleportingOut ? "animate-character-beam-out" : "animate-in zoom-in-95 duration-200"
                   }`}
                 >
-                  <div className={`relative w-28 h-28 sm:w-32 sm:h-32 ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}>
+                  <div className="relative w-28 h-28 sm:w-32 sm:h-32">
                     <Image
                       src="/assets/sprites/zero_saber.png"
                       alt="Zero Victory Pose"
@@ -1454,7 +1385,7 @@ export function MegaManBattleScene() {
                         dualIntroLanding ? "animate-character-beam-in" : ""
                       }`}
                     >
-                      <div className={`relative w-28 h-28 sm:w-32 sm:h-32 ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}>
+                      <div className="relative w-28 h-28 sm:w-32 sm:h-32">
                         <Image
                           src="/assets/sprites/zero_saber.png"
                           alt="Zero Dual Finisher Stance"
@@ -1584,7 +1515,7 @@ export function MegaManBattleScene() {
                     <div
                       className={`relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28 transition-transform duration-100 ${
                         xState === "shooting" ? "animate-x-step-recoil" : ""
-                      } ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}
+                      }`}
                       style={{ imageRendering: "pixelated" }}
                     >
                       <Image
@@ -1598,15 +1529,7 @@ export function MegaManBattleScene() {
 
                       {/* PRECISE BUSTER NOZZLE FLARE (At tip of X-Buster) */}
                       {xState !== "idle" && (
-                        <div
-                          className={`absolute right-[-2px] top-[36.8%] -translate-y-1/2 w-6 h-6 rounded-full animate-ping pointer-events-none z-30 ${
-                            activeChip === "FIRE"
-                              ? "bg-orange-400 shadow-[0_0_16px_#f97316]"
-                              : activeChip === "ICE"
-                              ? "bg-sky-300 shadow-[0_0_16px_#38bdf8]"
-                              : "bg-cyan-300 shadow-[0_0_16px_#38bdf8]"
-                          }`}
-                        />
+                        <div className="absolute right-[-2px] top-[36.8%] -translate-y-1/2 w-6 h-6 rounded-full bg-cyan-300 shadow-[0_0_16px_#38bdf8] animate-ping pointer-events-none z-30" />
                       )}
 
                       {/* PROJECTILES ORIGINATING FORWARD DIRECTLY FROM BUSTER NOZZLE */}
@@ -1634,16 +1557,6 @@ export function MegaManBattleScene() {
                                   <div className="absolute top-1 right-2 w-3.5 h-3.5 rounded-full bg-yellow-300 shadow-[0_0_12px_#fde047] animate-ping" />
                                   <div className="absolute bottom-1 left-2 w-4 h-4 rounded-full bg-cyan-300 shadow-[0_0_12px_#38bdf8] animate-ping" />
                                 </div>
-                              </div>
-                            ) : activeChip === "FIRE" ? (
-                              /* Blazing Fire Bullet */
-                              <div className="flex items-center gap-1 animate-bullet">
-                                <div className="w-6 h-4 bg-gradient-to-r from-orange-500 via-amber-300 to-white rounded-full shadow-[0_0_16px_#f97316]" />
-                              </div>
-                            ) : activeChip === "ICE" ? (
-                              /* Frozen Crystal Bullet */
-                              <div className="flex items-center gap-1 animate-bullet">
-                                <div className="w-6 h-4 bg-gradient-to-r from-sky-400 via-cyan-200 to-white rounded-full shadow-[0_0_16px_#38bdf8]" />
                               </div>
                             ) : (
                               /* Rapid Lemon Pellets */
@@ -1857,7 +1770,7 @@ export function MegaManBattleScene() {
                     <div
                       className={`relative w-28 h-28 sm:w-32 sm:h-32 transition-opacity duration-100 ${
                         zeroTeleportPhase !== 0 ? "opacity-0 scale-90" : "opacity-100 scale-100"
-                      } ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}
+                      }`}
                       style={{ imageRendering: "pixelated" }}
                     >
                       <Image
@@ -1869,15 +1782,7 @@ export function MegaManBattleScene() {
                         priority
                       />
                       {/* Glowing Saber Pulse */}
-                      <div
-                        className={`absolute top-4 right-0 w-8 h-8 rounded-full blur-xs animate-pulse pointer-events-none ${
-                          activeChip === "FIRE"
-                            ? "bg-orange-400/50 shadow-[0_0_12px_#f97316]"
-                            : activeChip === "ICE"
-                            ? "bg-sky-400/50 shadow-[0_0_12px_#38bdf8]"
-                            : "bg-emerald-400/30"
-                        }`}
-                      />
+                      <div className="absolute top-4 right-0 w-8 h-8 rounded-full blur-xs animate-pulse pointer-events-none bg-emerald-400/30" />
                     </div>
                   </div>
                 )}
@@ -1886,15 +1791,7 @@ export function MegaManBattleScene() {
               {/* HORIZONTAL IAIDO FLASH DASH CUT LINE ACROSS SCREEN */}
               {iaidoSlashLine && (
                 <div className="absolute left-4 top-[48%] -translate-y-1/2 w-[85%] h-2.5 pointer-events-none z-20">
-                  <div
-                    className={`w-full h-full animate-iaido-trail ${
-                      activeChip === "FIRE"
-                        ? "bg-gradient-to-r from-orange-500 via-amber-300 to-transparent shadow-[0_0_35px_#f97316]"
-                        : activeChip === "ICE"
-                        ? "bg-gradient-to-r from-sky-400 via-cyan-200 to-transparent shadow-[0_0_35px_#38bdf8]"
-                        : "bg-gradient-to-r from-emerald-500 via-white to-transparent shadow-[0_0_30px_#10b981]"
-                    }`}
-                  />
+                  <div className="w-full h-full animate-iaido-trail bg-gradient-to-r from-emerald-500 via-white to-transparent shadow-[0_0_30px_#10b981]" />
                 </div>
               )}
 
