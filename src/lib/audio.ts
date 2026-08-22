@@ -496,4 +496,218 @@ export const sfx = {
       // ignore
     }
   },
+
+  // Capcom Mechanical Weapon Switch Beep
+  weaponSwitch: () => {
+    if (isMuted) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "square";
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.setValueAtTime(1760, now + 0.04);
+
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.09);
+    } catch {
+      // ignore
+    }
+  },
+
+  // Storm Tornado: High-frequency whistling wind vortex
+  stormTornado: () => {
+    if (isMuted) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      
+      // Wind vortex sweep
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(450, now);
+      osc.frequency.linearRampToValueAtTime(920, now + 0.15);
+      osc.frequency.linearRampToValueAtTime(320, now + 0.35);
+
+      gain.gain.setValueAtTime(0.16, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.38);
+
+      // Multi-hit wind slice chops
+      [0.08, 0.16, 0.24].forEach((delay, idx) => {
+        const slice = ctx.createOscillator();
+        const sGain = ctx.createGain();
+        slice.type = "square";
+        slice.frequency.setValueAtTime(1200 - idx * 150, now + delay);
+        slice.frequency.exponentialRampToValueAtTime(200, now + delay + 0.06);
+
+        sGain.gain.setValueAtTime(0.1, now + delay);
+        sGain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.06);
+
+        slice.connect(sGain);
+        sGain.connect(ctx.destination);
+        slice.start(now + delay);
+        slice.stop(now + delay + 0.06);
+      });
+    } catch {
+      // ignore
+    }
+  },
+
+  // Triad Thunder: 3-Node Electric Pulse & Arc Discharge
+  triadThunder: () => {
+    if (isMuted) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      // 3 rapid electric charge pings
+      [0, 0.06, 0.12].forEach((delay, idx) => {
+        const ping = ctx.createOscillator();
+        const pGain = ctx.createGain();
+        ping.type = "sawtooth";
+        ping.frequency.setValueAtTime(600 + idx * 400, now + delay);
+        ping.frequency.exponentialRampToValueAtTime(1800, now + delay + 0.05);
+
+        pGain.gain.setValueAtTime(0.12, now + delay);
+        pGain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.05);
+
+        ping.connect(pGain);
+        pGain.connect(ctx.destination);
+        ping.start(now + delay);
+        ping.stop(now + delay + 0.05);
+      });
+
+      // High voltage discharge crackle
+      const zap = ctx.createOscillator();
+      const zGain = ctx.createGain();
+      zap.type = "sawtooth";
+      zap.frequency.setValueAtTime(150, now + 0.18);
+      zap.frequency.linearRampToValueAtTime(800, now + 0.25);
+      zap.frequency.exponentialRampToValueAtTime(50, now + 0.45);
+
+      zGain.gain.setValueAtTime(0.22, now + 0.18);
+      zGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      zap.connect(zGain);
+      zGain.connect(ctx.destination);
+      zap.start(now + 0.18);
+      zap.stop(now + 0.45);
+    } catch {
+      // ignore
+    }
+  },
+
+  // Hyouryuushou: Ice Uppercut & Crystal Frost Shatter
+  iceShatter: () => {
+    if (isMuted) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      // Upward rising icy whoosh
+      const rising = ctx.createOscillator();
+      const rGain = ctx.createGain();
+      rising.type = "sawtooth";
+      rising.frequency.setValueAtTime(250, now);
+      rising.frequency.exponentialRampToValueAtTime(1400, now + 0.22);
+
+      rGain.gain.setValueAtTime(0.15, now);
+      rGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+      rising.connect(rGain);
+      rGain.connect(ctx.destination);
+      rising.start(now);
+      rising.stop(now + 0.25);
+
+      // Frost glass shatter sparkles
+      [1800, 2400, 3200, 4100].forEach((freq, idx) => {
+        const chime = ctx.createOscillator();
+        const cGain = ctx.createGain();
+        const t = now + 0.18 + idx * 0.03;
+
+        chime.type = "sine";
+        chime.frequency.setValueAtTime(freq, t);
+        chime.frequency.exponentialRampToValueAtTime(freq * 0.5, t + 0.08);
+
+        cGain.gain.setValueAtTime(0.09, t);
+        cGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+
+        chime.connect(cGain);
+        cGain.connect(ctx.destination);
+        chime.start(t);
+        chime.stop(t + 0.08);
+      });
+    } catch {
+      // ignore
+    }
+  },
+
+  // Rekkoha: Ground Punch Impact + 5 Descending Celestial Light Lasers
+  rekkoha: () => {
+    if (isMuted) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+
+      // Heavy Ground Punch Thud
+      const punch = ctx.createOscillator();
+      const pGain = ctx.createGain();
+      punch.type = "triangle";
+      punch.frequency.setValueAtTime(220, now);
+      punch.frequency.exponentialRampToValueAtTime(35, now + 0.28);
+
+      pGain.gain.setValueAtTime(0.3, now);
+      pGain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+      punch.connect(pGain);
+      pGain.connect(ctx.destination);
+      punch.start(now);
+      punch.stop(now + 0.28);
+
+      // Celestial Laser Chord Chime (Descending heavenly pillars)
+      [523.25, 659.25, 783.99, 1046.5].forEach((noteFreq, idx) => {
+        const laser = ctx.createOscillator();
+        const lGain = ctx.createGain();
+        const t = now + 0.12 + idx * 0.05;
+
+        laser.type = "sine";
+        laser.frequency.setValueAtTime(noteFreq * 2, t);
+        laser.frequency.linearRampToValueAtTime(noteFreq, t + 0.35);
+
+        lGain.gain.setValueAtTime(0.12, t);
+        lGain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+
+        laser.connect(lGain);
+        lGain.connect(ctx.destination);
+        laser.start(t);
+        laser.stop(t + 0.45);
+      });
+    } catch {
+      // ignore
+    }
+  },
 };

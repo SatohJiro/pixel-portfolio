@@ -63,6 +63,42 @@ export function MegaManBattleScene() {
   const [zeroAfterImages, setZeroAfterImages] = useState<Array<{ id: number; color: "rose" | "emerald"; offset: number }>>([]);
   const [zeroJetDust, setZeroJetDust] = useState(false);
 
+  // ================= SPECIAL SUB-WEAPONS ARSENAL =================
+  const [xActiveWeapon, setXActiveWeapon] = useState<"buster" | "tornado" | "thunder">("buster");
+  const [xWeaponEnergy, setXWeaponEnergy] = useState(28);
+  const [xTornadoActive, setXTornadoActive] = useState(false);
+  const [xThunderActive, setXThunderActive] = useState(false);
+
+  const [zeroActiveWeapon, setZeroActiveWeapon] = useState<"saber" | "hyouryuu" | "rekkoha">("saber");
+  const [zeroWeaponEnergy, setZeroWeaponEnergy] = useState(28);
+  const [zeroHyouryuuActive, setZeroHyouryuuActive] = useState(false);
+  const [zeroIceShatterBurst, setZeroIceShatterBurst] = useState(false);
+  const [zeroRekkohaActive, setZeroRekkohaActive] = useState(false);
+  const [zeroRekkohaFissure, setZeroRekkohaFissure] = useState(false);
+  const [zeroRekkohaFlash, setZeroRekkohaFlash] = useState(false);
+  const [zeroFrozenDrone, setZeroFrozenDrone] = useState(false);
+
+  // Passive Weapon Energy Ultra-Fast Smooth Auto-Recharge (+1 every 180ms)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setXWeaponEnergy((prev) => Math.min(28, prev + 1));
+      setZeroWeaponEnergy((prev) => Math.min(28, prev + 1));
+    }, 180);
+    return () => clearInterval(timer);
+  }, []);
+
+  const handleSelectXWeapon = (w: "buster" | "tornado" | "thunder", e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    sfx.weaponSwitch();
+    setXActiveWeapon(w);
+  };
+
+  const handleSelectZeroWeapon = (w: "saber" | "hyouryuu" | "rekkoha", e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    sfx.weaponSwitch();
+    setZeroActiveWeapon(w);
+  };
+
   // ================= DUAL CROSS GAUGE =================
   const [dualGauge, setDualGauge] = useState(65);
   const [dualFinisherActive, setDualFinisherActive] = useState(false);
@@ -149,6 +185,118 @@ export function MegaManBattleScene() {
     }, 200);
 
     setTimeout(() => setXState("idle"), 280);
+  };
+
+  // Storm Tornado (Storm Eagle Special Weapon)
+  const handleStormTornado = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (xCharging || dualFinisherActive || xTornadoActive) return;
+    if (xWeaponEnergy < 4) {
+      sfx.click();
+      return;
+    }
+    setXWeaponEnergy((we) => Math.max(0, we - 4));
+    sfx.stormTornado();
+    setXState("shooting");
+    setXTornadoActive(true);
+    setXCombo((c) => c + 3);
+    setXScore((s) => s + 75);
+
+    // Jet Dash Recoil, Dust & Cyan Ghost After-Images
+    setXJetDust(true);
+    setXJetPlume(true);
+    const ghost1 = { id: Date.now(), color: "cyan" as const, offset: -10 };
+    const ghost2 = { id: Date.now() + 1, color: "cyan" as const, offset: -20 };
+    setXAfterImages([ghost1, ghost2]);
+
+    setTimeout(() => {
+      setXJetDust(false);
+      setXJetPlume(false);
+      setXAfterImages([]);
+    }, 320);
+
+    // 3-Hit Piercing Ticks on Metool
+    [160, 260, 360].forEach((delay, idx) => {
+      setTimeout(() => {
+        setMetoolHit(true);
+        spawnXDamage(30, idx === 2);
+        setTimeout(() => setMetoolHit(false), 120);
+
+        setMetoolHp((prev) => {
+          const next = prev - 30;
+          if (next <= 0) {
+            triggerMetoolDefeat();
+            return 0;
+          }
+          return next;
+        });
+      }, delay);
+    });
+
+    setTimeout(() => {
+      setXTornadoActive(false);
+      setXState("idle");
+    }, 550);
+  };
+
+  // Triad Thunder (Volt Catfish Special Weapon)
+  const handleTriadThunder = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (xCharging || dualFinisherActive || xThunderActive) return;
+    if (xWeaponEnergy < 6) {
+      sfx.click();
+      return;
+    }
+    setXWeaponEnergy((we) => Math.max(0, we - 6));
+    sfx.triadThunder();
+    setXState("shooting");
+    setXThunderActive(true);
+    setXCombo((c) => c + 2);
+    setXScore((s) => s + 90);
+
+    // Jet Thruster & Purple Ghost After-Images
+    setXJetDust(true);
+    setXJetPlume(true);
+    const ghost1 = { id: Date.now(), color: "purple" as const, offset: -12 };
+    setXAfterImages([ghost1]);
+
+    setTimeout(() => {
+      setXJetDust(false);
+      setXJetPlume(false);
+      setXAfterImages([]);
+    }, 350);
+
+    // High Voltage Lightning Arc Impact (at 240ms)
+    setTimeout(() => {
+      setMetoolHit(true);
+      spawnXDamage(110, true);
+      setTimeout(() => setMetoolHit(false), 220);
+
+      setMetoolHp((prev) => {
+        const next = prev - 110;
+        if (next <= 0) {
+          triggerMetoolDefeat();
+          return 0;
+        }
+        return next;
+      });
+    }, 240);
+
+    setTimeout(() => {
+      setXThunderActive(false);
+      setXState("idle");
+    }, 520);
+  };
+
+  // Dynamic X Primary Attack Dispatcher based on active weapon
+  const handleXAttack = (e?: React.MouseEvent) => {
+    if (xActiveWeapon === "tornado") {
+      handleStormTornado(e);
+    } else if (xActiveWeapon === "thunder") {
+      handleTriadThunder(e);
+    } else {
+      handleXBuster(e);
+    }
   };
 
   // Full 3-Tier Interactive Charge Attack (Tụ Lực -> Khai Hỏa Giga Plasma)
@@ -640,6 +788,125 @@ export function MegaManBattleScene() {
       setZeroJetDust(false);
       setZeroAfterImages([]);
     }, 1450);
+  };
+
+  // Hyouryuushou (Frost Walrus - Sharp Ice Dragon Rising Blade)
+  const handleHyouryuushou = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (zeroState !== "idle" || dualFinisherActive || zeroHyouryuuActive) return;
+    if (zeroWeaponEnergy < 5) {
+      sfx.click();
+      return;
+    }
+    setZeroWeaponEnergy((we) => Math.max(0, we - 5));
+    sfx.iceShatter();
+    setZeroHyouryuuActive(true);
+    setZeroCombo((c) => c + 2);
+    setZeroScore((s) => s + 80);
+
+    // Rise upward with dual cryogenic frost after-images
+    setZeroJetDust(true);
+    const g1 = { id: Date.now(), color: "emerald" as const, offset: 12 };
+    const g2 = { id: Date.now() + 1, color: "emerald" as const, offset: 24 };
+    setZeroAfterImages([g1, g2]);
+
+    // Freeze Drone in faceted diamond crystal at 220ms
+    setTimeout(() => {
+      setZeroFrozenDrone(true);
+      setDroneHit(true);
+      setTimeout(() => setDroneHit(false), 150);
+    }, 220);
+
+    // Ice Shatter Razor Burst & Impact Shake at 450ms
+    setTimeout(() => {
+      setZeroFrozenDrone(false);
+      setZeroIceShatterBurst(true);
+      setZeroShake(true);
+      setTimeout(() => setZeroShake(false), 220);
+      setTimeout(() => setZeroIceShatterBurst(false), 450);
+
+      spawnZeroDamage(130, true);
+      setDroneHp((prev) => {
+        const next = prev - 130;
+        if (next <= 0) {
+          triggerDroneDefeat();
+          return 0;
+        }
+        return next;
+      });
+    }, 450);
+
+    setTimeout(() => {
+      setZeroHyouryuuActive(false);
+      setZeroJetDust(false);
+      setZeroAfterImages([]);
+    }, 800);
+  };
+
+  // Rekkoha (Mega Man X4/X5 Zero Ultimate Divine Light Pillars & Heavy Ground Rupture)
+  const handleRekkoha = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (zeroState !== "idle" || dualFinisherActive || zeroRekkohaActive) return;
+    if (zeroWeaponEnergy < 9) {
+      sfx.click();
+      return;
+    }
+    setZeroWeaponEnergy((we) => Math.max(0, we - 9));
+    sfx.rekkoha();
+    setZeroRekkohaActive(true);
+    setZeroRekkohaFissure(true);
+    setZeroRekkohaFlash(true);
+    setZeroShake(true);
+    setZeroCombo((c) => c + 5);
+    setZeroScore((s) => s + 150);
+
+    // Ground shock impact
+    setZeroJetDust(true);
+    const g1 = { id: Date.now(), color: "rose" as const, offset: -8 };
+    const g2 = { id: Date.now() + 1, color: "emerald" as const, offset: 8 };
+    setZeroAfterImages([g1, g2]);
+
+    setTimeout(() => {
+      setZeroRekkohaFlash(false);
+    }, 650);
+
+    // Piercing Laser Pillars strike at 280ms
+    setTimeout(() => {
+      setDroneHit(true);
+      spawnZeroDamage(240, true);
+      setTimeout(() => setDroneHit(false), 300);
+
+      setDroneHp((prev) => {
+        const next = prev - 240;
+        if (next <= 0) {
+          triggerDroneDefeat();
+          return 0;
+        }
+        return next;
+      });
+    }, 280);
+
+    setTimeout(() => {
+      setZeroShake(false);
+      setZeroRekkohaFissure(false);
+    }, 900);
+
+    setTimeout(() => {
+      setZeroRekkohaActive(false);
+      setZeroJetDust(false);
+      setZeroAfterImages([]);
+    }, 1250);
+  };
+
+  // Dynamic Zero Primary Attack Dispatcher based on active weapon
+  const handleZeroAttack = (e?: React.MouseEvent) => {
+    if (zeroActiveWeapon === "hyouryuu") {
+      handleHyouryuushou(e);
+    } else if (zeroActiveWeapon === "rekkoha") {
+      handleRekkoha(e);
+    } else {
+      handleZeroTeleportCombo(e);
+    }
   };
 
   const triggerDroneDefeat = () => {
@@ -1650,6 +1917,15 @@ export function MegaManBattleScene() {
                         </div>
                       ))}
 
+                      {/* Triad Thunder: 3 Rotating Electric Dynamo Nodes */}
+                      {xThunderActive && (
+                        <div className="absolute -inset-6 pointer-events-none z-25 flex items-center justify-center animate-triad-orbit">
+                          <div className="absolute -top-2 w-4 h-4 rounded-full bg-yellow-300 border-2 border-white shadow-[0_0_20px_#facc15] animate-ping" />
+                          <div className="absolute -bottom-2 -left-2 w-4 h-4 rounded-full bg-cyan-300 border-2 border-white shadow-[0_0_20px_#22d3ee] animate-ping" />
+                          <div className="absolute -bottom-2 -right-2 w-4 h-4 rounded-full bg-amber-400 border-2 border-white shadow-[0_0_20px_#f59e0b] animate-ping" />
+                        </div>
+                      )}
+
                       <Image
                         src="/assets/sprites/megaman_x.png"
                         alt="Mega Man X Pixel Art Sprite"
@@ -1666,6 +1942,54 @@ export function MegaManBattleScene() {
 
                       {/* PROJECTILES ORIGINATING FORWARD DIRECTLY FROM BUSTER NOZZLE */}
                       <div className="absolute left-[98%] top-[36.8%] -translate-y-1/2 pointer-events-none z-20">
+                        {/* 1. Storm Tornado: Horizontal Conical Green Hurricane Funnel with Swirling Leaves */}
+                        {xTornadoActive && (
+                          <div className="absolute left-0 top-0 -translate-y-1/2 flex items-center animate-storm-tornado pointer-events-none z-25">
+                            <div className="relative w-48 sm:w-56 h-36 sm:h-44 flex items-center">
+                              {/* Conical Funnel Green Outer Vortex Body */}
+                              <div
+                                className="w-full h-full bg-gradient-to-r from-emerald-500/25 via-emerald-400/40 to-teal-300/60 shadow-[0_0_35px_#10b981] relative flex items-center overflow-visible"
+                                style={{ clipPath: "polygon(0% 42%, 100% 0%, 100% 100%, 0% 58%)" }}
+                              >
+                                {/* Swirling Emerald Green Wind Ribbons */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-emerald-600/40 via-white/20 to-teal-400/40 animate-wind-ribbon" />
+                                <div className="absolute inset-y-2 left-0 right-0 border-y-2 border-dashed border-emerald-200 opacity-70 animate-pulse" />
+                                
+                                {/* White-Hot Cyclone Core Eye Stream */}
+                                <div className="w-full h-2.5 bg-gradient-to-r from-white via-emerald-200 to-teal-100 blur-2xs shadow-[0_0_20px_#ffffff]" />
+                              </div>
+
+                              {/* 3 Concentric Oval Spinning Wind Rings along the Conical Funnel */}
+                              <div className="absolute left-3 w-8 h-14 rounded-full border-2 border-emerald-300 bg-emerald-400/20 shadow-[0_0_15px_#34d399] animate-funnel-spin" />
+                              <div className="absolute left-20 w-16 h-28 rounded-full border-3 border-emerald-200 bg-teal-400/25 shadow-[0_0_25px_#10b981] animate-funnel-spin" />
+                              <div className="absolute right-2 w-24 h-40 rounded-full border-4 border-white bg-emerald-300/30 shadow-[0_0_35px_#6ee7b7] animate-funnel-spin" />
+
+                              {/* Swirling Green Leaves Swept Up inside the Cyclone */}
+                              <div className="absolute left-6 top-4 animate-leaf-1 text-base select-none filter drop-shadow-[0_0_8px_#10b981]">🍃</div>
+                              <div className="absolute left-20 top-12 animate-leaf-2 text-lg select-none filter drop-shadow-[0_0_10px_#34d399]">🍃</div>
+                              <div className="absolute left-32 top-6 animate-leaf-3 text-base select-none filter drop-shadow-[0_0_8px_#059669]">🍃</div>
+                              <div className="absolute left-16 bottom-6 animate-leaf-1 text-sm select-none filter drop-shadow-[0_0_8px_#10b981]" style={{ animationDelay: "0.14s" }}>🍃</div>
+                              <div className="absolute right-8 bottom-8 animate-leaf-2 text-xl select-none filter drop-shadow-[0_0_12px_#34d399]" style={{ animationDelay: "0.18s" }}>🍃</div>
+                              <div className="absolute right-4 top-10 animate-leaf-3 text-base select-none filter drop-shadow-[0_0_10px_#6ee7b7]" style={{ animationDelay: "0.08s" }}>🍃</div>
+
+                              {/* Origin Cyclone Tip anchored to Buster Nozzle */}
+                              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-emerald-300 shadow-[0_0_20px_#10b981] animate-ping" />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 2. Triad Thunder High-Voltage Lightning Bolt Beam */}
+                        {xThunderActive && (
+                          <div className="absolute left-0 top-0 -translate-y-1/2 flex items-center animate-lightning-bolt">
+                            <div className="relative w-44 sm:w-60 h-16 flex items-center">
+                              <div className="w-full h-3 bg-gradient-to-r from-yellow-300 via-white to-cyan-400 shadow-[0_0_30px_#facc15]" />
+                              <div className="absolute inset-x-0 h-1 bg-white shadow-[0_0_15px_#ffffff] animate-ping" />
+                              <div className="absolute right-4 w-12 h-12 rounded-full border-2 border-yellow-300 shadow-[0_0_25px_#fde047] animate-ping" />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* 3. Standard Buster & Plasma Projectiles */}
                         {xProjectiles.map((p) => (
                           <div key={p.id} className="absolute left-0 top-0 -translate-y-1/2">
                             {p.type === "plasma" ? (
@@ -1748,6 +2072,14 @@ export function MegaManBattleScene() {
                   </div>
                 )}
 
+                {/* Electric Shock Cascade on Metool when Triad Thunder hits */}
+                {xThunderActive && metoolHit && (
+                  <div className="absolute -inset-6 flex items-center justify-center pointer-events-none z-35 animate-electric-spark">
+                    <div className="w-24 h-24 rounded-full border-4 border-yellow-300 shadow-[0_0_40px_#facc15] animate-ping" />
+                    <div className="absolute w-20 h-20 rounded-full border-2 border-cyan-300 animate-spin" />
+                  </div>
+                )}
+
                 {/* Floating Damage Numbers */}
                 <div className="absolute -top-8 inset-x-0 flex flex-col items-center pointer-events-none">
                   {xDamageTexts.map((item) => (
@@ -1795,15 +2127,76 @@ export function MegaManBattleScene() {
               </div>
             </div>
 
+            {/* Tactical Sub-Weapon Selector Dock for X */}
+            <div className="mt-2.5 flex items-center justify-between bg-slate-950/90 border border-slate-800 p-1.5 rounded-xs">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <button
+                  type="button"
+                  onClick={(e) => handleSelectXWeapon("buster", e)}
+                  className={`px-1.5 sm:px-2 py-1 text-[10px] font-black font-mono border transition-all cursor-pointer ${
+                    xActiveWeapon === "buster"
+                      ? "bg-cyan-500 text-black border-cyan-300 shadow-[0_0_10px_#22d3ee]"
+                      : "bg-slate-900 text-cyan-400/80 border-slate-700 hover:border-cyan-500"
+                  }`}
+                >
+                  [X-B] BUSTER
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleSelectXWeapon("tornado", e)}
+                  className={`px-1.5 sm:px-2 py-1 text-[10px] font-black font-mono border transition-all cursor-pointer ${
+                    xActiveWeapon === "tornado"
+                      ? "bg-emerald-500 text-black border-emerald-300 shadow-[0_0_10px_#10b981]"
+                      : "bg-slate-900 text-emerald-400/80 border-slate-700 hover:border-emerald-500"
+                  }`}
+                >
+                  [S-T] TORNADO
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleSelectXWeapon("thunder", e)}
+                  className={`px-1.5 sm:px-2 py-1 text-[10px] font-black font-mono border transition-all cursor-pointer ${
+                    xActiveWeapon === "thunder"
+                      ? "bg-yellow-400 text-black border-yellow-200 shadow-[0_0_10px_#facc15]"
+                      : "bg-slate-900 text-yellow-400/80 border-slate-700 hover:border-yellow-500"
+                  }`}
+                >
+                  [T-T] THUNDER
+                </button>
+              </div>
+
+              {/* Weapon Energy Gauge */}
+              <div className="flex items-center gap-1.5 pr-1">
+                <span className="text-[9px] font-mono font-bold text-cyan-300">WE:</span>
+                <div className="w-12 sm:w-16 h-2 bg-slate-900 border border-slate-700 p-[1px]">
+                  <div
+                    className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all duration-150"
+                    style={{ width: `${(xWeaponEnergy / 28) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[9px] font-mono font-bold text-cyan-400">{xWeaponEnergy}</span>
+              </div>
+            </div>
+
             {/* Interactive Attack Buttons */}
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="mt-2.5 grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={handleXBuster}
+                onClick={handleXAttack}
                 disabled={xCharging}
-                className="py-2 px-3 bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 disabled:opacity-50 text-white font-bold text-xs border-2 border-cyan-300 shadow-[2px_2px_0px_0px_#0284c7] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+                className={`py-2 px-3 disabled:opacity-50 text-white font-bold text-xs border-2 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer ${
+                  xActiveWeapon === "tornado"
+                    ? "bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 border-emerald-300 shadow-[2px_2px_0px_0px_#047857]"
+                    : xActiveWeapon === "thunder"
+                    ? "bg-yellow-600 hover:bg-yellow-500 active:bg-yellow-700 border-yellow-300 shadow-[2px_2px_0px_0px_#ca8a04]"
+                    : "bg-cyan-600 hover:bg-cyan-500 active:bg-cyan-700 border-cyan-300 shadow-[2px_2px_0px_0px_#0284c7]"
+                }`}
               >
-                [ ⚡ BUSTER RAPID ]
+                {xActiveWeapon === "tornado"
+                  ? "[ 🌪️ STORM TORNADO ]"
+                  : xActiveWeapon === "thunder"
+                  ? "[ ⚡ TRIAD THUNDER ]"
+                  : "[ ⚡ BUSTER RAPID ]"}
               </button>
               <button
                 type="button"
@@ -1878,6 +2271,10 @@ export function MegaManBattleScene() {
                         ? "animate-character-beam-out"
                         : soloTeleportIn
                         ? "animate-character-beam-in"
+                        : zeroHyouryuuActive
+                        ? "animate-zero-ice-rise"
+                        : zeroRekkohaActive
+                        ? "animate-zero-rekkoha-punch"
                         : iaidoPhase === "focus"
                         ? "animate-iaido-focus"
                         : iaidoPhase === "dash" || iaidoPhase === "sheath" || iaidoPhase === "shatter"
@@ -1896,6 +2293,55 @@ export function MegaManBattleScene() {
                             ⚡ IAIDO FOCUS STANCE
                           </span>
                         </div>
+                      </div>
+                    )}
+
+                    {/* ZERO REKKOHA GOLDEN LIGHT AURA */}
+                    {zeroRekkohaActive && (
+                      <div className="absolute -inset-8 flex items-center justify-center pointer-events-none z-0">
+                        <div className="absolute inset-0 rounded-full border-4 border-amber-300 shadow-[0_0_55px_#f59e0b] animate-ping" />
+                        <div className="absolute -inset-4 rounded-full border-2 border-white shadow-[0_0_35px_#ffffff] animate-spin" />
+                      </div>
+                    )}
+
+                    {/* ZERO HYOURYUUSHOU: RISING ICE DRAGON BLIZZARD VORTEX COLUMN UNDER ZERO */}
+                    {zeroHyouryuuActive && (
+                      <div className="absolute -bottom-4 left-0 right-0 h-48 pointer-events-none z-0 flex flex-col items-center justify-end animate-ice-dragon-vortex">
+                        <div
+                          className="w-24 sm:w-32 h-full bg-gradient-to-t from-cyan-600/30 via-cyan-300/50 to-white/90 shadow-[0_0_40px_#06b6d4] flex items-center justify-center"
+                          style={{ clipPath: "polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%)" }}
+                        >
+                          {/* Spiraling Ice Crystal Core */}
+                          <div className="w-3.5 h-full bg-white blur-2xs animate-pulse" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ZERO HYOURYUUSHOU: FROST GROUND NOVA AT LAUNCH BASE */}
+                    {zeroHyouryuuActive && (
+                      <div className="absolute -bottom-3 -inset-x-8 h-6 pointer-events-none z-0 flex items-center justify-center animate-frost-ground">
+                        <div className="w-full h-2 bg-gradient-to-r from-transparent via-cyan-300 to-transparent shadow-[0_0_25px_#22d3ee]" />
+                        <div className="absolute w-20 h-4 bg-white/70 rounded-full blur-xs" />
+                      </div>
+                    )}
+
+                    {/* ZERO HYOURYUUSHOU: ASCENDING CRYSTAL SNOWFLAKES & FROST PARTICLES */}
+                    {zeroHyouryuuActive && (
+                      <div className="absolute inset-0 pointer-events-none z-30">
+                        <span className="absolute left-1 bottom-6 text-sm animate-snowflake-1 select-none filter drop-shadow-[0_0_10px_#38bdf8]">❄️</span>
+                        <span className="absolute right-1 bottom-4 text-base animate-snowflake-2 select-none filter drop-shadow-[0_0_12px_#ffffff]">❄️</span>
+                        <span className="absolute left-6 bottom-12 text-xs animate-snowflake-1 select-none filter drop-shadow-[0_0_8px_#a5f3fc]" style={{ animationDelay: "0.15s" }}>❄️</span>
+                        <span className="absolute right-6 bottom-8 text-sm animate-snowflake-2 select-none filter drop-shadow-[0_0_10px_#22d3ee]" style={{ animationDelay: "0.2s" }}>❄️</span>
+                      </div>
+                    )}
+
+                    {/* ZERO HYOURYUUSHOU: RAZOR-SHARP GLACIAL CRESCENT BLADE SLASH ARC */}
+                    {zeroHyouryuuActive && (
+                      <div className="absolute -top-16 -right-10 w-44 h-44 pointer-events-none z-30 animate-ice-blade-arc flex items-center justify-center">
+                        <div className="w-full h-full border-r-8 border-t-8 border-cyan-100 bg-gradient-to-tr from-transparent via-cyan-400/40 to-white shadow-[0_0_45px_#38bdf8] rounded-tr-full" />
+                        <div className="absolute top-2 right-2 w-8 h-8 bg-white rotate-45 shadow-[0_0_25px_#ffffff] animate-ping" />
+                        {/* Frost Vapor Trail */}
+                        <div className="absolute inset-4 rounded-tr-full border-r-4 border-t-4 border-sky-300/60 blur-xs" />
                       </div>
                     )}
 
@@ -1950,6 +2396,151 @@ export function MegaManBattleScene() {
               {iaidoSlashLine && (
                 <div className="absolute left-4 top-[48%] -translate-y-1/2 w-[85%] h-2.5 pointer-events-none z-20">
                   <div className="w-full h-full animate-iaido-trail bg-gradient-to-r from-emerald-500 via-white to-transparent shadow-[0_0_30px_#10b981]" />
+                </div>
+              )}
+
+              {/* REKKOHA: ARENA FLASH & GROUND RUPTURE FISSURES */}
+              {zeroRekkohaFlash && (
+                <div className="absolute inset-0 bg-gradient-to-b from-amber-300/40 via-yellow-100/30 to-transparent pointer-events-none z-20 animate-rekkoha-flash" />
+              )}
+
+              {zeroRekkohaFissure && (
+                <div className="absolute bottom-2 left-6 right-6 h-3 pointer-events-none z-20 flex items-center justify-center">
+                  <div className="w-full h-1.5 bg-gradient-to-r from-amber-400 via-white to-amber-500 shadow-[0_0_25px_#fbbf24] animate-pulse" />
+                  <div className="absolute w-32 h-2.5 bg-yellow-300 shadow-[0_0_35px_#f59e0b] animate-ping" />
+                </div>
+              )}
+
+              {/* REKKOHA: CONCENTRATED SLENDER ZIGZAG CELESTIAL LIGHTNING BOLTS AROUND DRONE */}
+              {zeroRekkohaActive && (
+                <div className="absolute inset-0 pointer-events-none z-25 overflow-hidden">
+                  <svg className="absolute inset-0 w-0 h-0 pointer-events-none">
+                    <defs>
+                      <linearGradient id="rekkohaGoldGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#fef08a" />
+                        <stop offset="50%" stopColor="#facc15" />
+                        <stop offset="100%" stopColor="#f59e0b" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+
+                  {[
+                    // 1. Direct Center Core Strike on Drone
+                    {
+                      left: "74%",
+                      width: "w-8 sm:w-10",
+                      delay: "0s",
+                      path: "M 20 0 L 13 45 L 27 95 L 11 155 L 26 210 L 15 265 L 20 320",
+                      scale: "scale-110",
+                    },
+                    // 2. Inner Left Flank on Drone
+                    {
+                      left: "66%",
+                      width: "w-7 sm:w-9",
+                      delay: "0.04s",
+                      path: "M 18 0 L 26 50 L 10 110 L 28 165 L 13 220 L 25 275 L 18 320",
+                      scale: "scale-105",
+                    },
+                    // 3. Inner Right Flank on Drone
+                    {
+                      left: "81%",
+                      width: "w-7 sm:w-9",
+                      delay: "0.08s",
+                      path: "M 22 0 L 12 55 L 29 115 L 14 175 L 27 230 L 14 280 L 21 320",
+                      scale: "scale-105",
+                    },
+                    // 4. Outer Left Surrounding Strike
+                    {
+                      left: "58%",
+                      width: "w-6 sm:w-8",
+                      delay: "0.12s",
+                      path: "M 15 0 L 25 60 L 11 125 L 26 185 L 12 240 L 23 290 L 17 320",
+                      scale: "scale-95",
+                    },
+                    // 5. Outer Right Surrounding Strike
+                    {
+                      left: "88%",
+                      width: "w-6 sm:w-8",
+                      delay: "0.15s",
+                      path: "M 25 0 L 13 65 L 27 130 L 10 190 L 25 245 L 15 295 L 20 320",
+                      scale: "scale-95",
+                    },
+                    // 6. Zero Ground Strike Power Conduit Arc (near Zero)
+                    {
+                      left: "22%",
+                      width: "w-6 sm:w-7",
+                      delay: "0.02s",
+                      path: "M 16 0 L 25 55 L 12 110 L 27 175 L 14 230 L 23 285 L 18 320",
+                      scale: "scale-90",
+                    },
+                  ].map((bolt, idx) => (
+                    <div
+                      key={idx}
+                      className={`absolute top-0 bottom-0 ${bolt.width} flex flex-col items-center justify-between animate-rekkoha-lightning ${bolt.scale}`}
+                      style={{ left: bolt.left, animationDelay: bolt.delay }}
+                    >
+                      <svg
+                        viewBox="0 0 40 320"
+                        className="w-full h-full overflow-visible pointer-events-none"
+                        preserveAspectRatio="none"
+                      >
+                        {/* Broad Golden Aura Discharge */}
+                        <path
+                          d={bolt.path}
+                          fill="none"
+                          stroke="url(#rekkohaGoldGlow)"
+                          strokeWidth="8"
+                          strokeLinecap="round"
+                          strokeLinejoin="miter"
+                          className="opacity-70 blur-[3px]"
+                        />
+                        {/* Slender Golden Zigzag Arc */}
+                        <path
+                          d={bolt.path}
+                          fill="none"
+                          stroke="#facc15"
+                          strokeWidth="3.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="miter"
+                          className="shadow-[0_0_15px_#fbbf24]"
+                        />
+                        {/* Ultra-Sharp Pure White Lightning Core */}
+                        <path
+                          d={bolt.path}
+                          fill="none"
+                          stroke="#ffffff"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="miter"
+                        />
+                      </svg>
+
+                      {/* High-Voltage Ground Impact Sparks & Blast Rings */}
+                      <div className="absolute bottom-0 w-12 h-6 rounded-full border-2 border-white bg-amber-300/60 shadow-[0_0_25px_#fbbf24] animate-rekkoha-impact" />
+                      <div className="absolute bottom-1 w-6 h-6 rounded-full bg-yellow-300 shadow-[0_0_15px_#fde047] animate-ping" />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* HYOURYUUSHOU: 3 JAGGED FACETED ICE SPIRES ERUPTING UNDER DRONE */}
+              {zeroHyouryuuActive && (
+                <div className="absolute right-2 sm:right-6 bottom-0 w-32 sm:w-40 h-48 pointer-events-none z-25 flex items-end justify-center gap-1">
+                  {/* Left Secondary Spire */}
+                  <div
+                    className="w-8 h-32 bg-gradient-to-t from-cyan-600 via-cyan-300 to-white shadow-[0_0_25px_#38bdf8] animate-ice-spire"
+                    style={{ clipPath: "polygon(50% 0%, 100% 85%, 75% 100%, 25% 100%, 0% 85%)", animationDelay: "0.04s" }}
+                  />
+                  {/* Center Main Colossal Spire */}
+                  <div
+                    className="w-14 h-48 bg-gradient-to-t from-cyan-700 via-sky-200 to-white shadow-[0_0_40px_#22d3ee] animate-ice-spire"
+                    style={{ clipPath: "polygon(50% 0%, 100% 75%, 80% 100%, 20% 100%, 0% 75%)" }}
+                  />
+                  {/* Right Secondary Spire */}
+                  <div
+                    className="w-8 h-28 bg-gradient-to-t from-cyan-600 via-cyan-300 to-white shadow-[0_0_25px_#38bdf8] animate-ice-spire"
+                    style={{ clipPath: "polygon(50% 0%, 100% 85%, 75% 100%, 25% 100%, 0% 85%)", animationDelay: "0.08s" }}
+                  />
                 </div>
               )}
 
@@ -2037,10 +2628,55 @@ export function MegaManBattleScene() {
                     <div className="relative w-36 h-36 flex items-center justify-center animate-dimension-shatter">
                       <div className="absolute inset-0 rounded-full border-4 border-emerald-400 shadow-[0_0_60px_#10b981] animate-spin" />
                       <div className="absolute inset-3 rounded-full border-4 border-teal-300 shadow-[0_0_40px_#2dd4bf] animate-ping" />
-                      <div className="w-20 h-20 rounded-full bg-white shadow-[0_0_70px_#22c55e,inset_0_0_25px_#10b981] flex items-center justify-center animate-pulse">
+                      <div className="w-20 h-20 rounded-full bg-white shadow-[0_0_70px_#22d3ee,inset_0_0_25px_#10b981] flex items-center justify-center animate-pulse">
                         <div className="w-10 h-10 rounded-full bg-emerald-200 shadow-[0_0_25px_#ffffff] animate-ping" />
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* High-Voltage Electric Overload Sparks on Drone during Rekkoha */}
+                {zeroRekkohaActive && (
+                  <div className="absolute -inset-6 flex items-center justify-center pointer-events-none z-35 animate-electric-spark">
+                    <div className="w-24 h-24 rounded-full border-3 border-amber-300 shadow-[0_0_35px_#facc15] animate-ping" />
+                    <div className="absolute w-20 h-20 rounded-full border-2 border-white animate-spin" />
+                  </div>
+                )}
+
+                {/* 3D Faceted Diamond Crystal Cage when Drone is frozen */}
+                {zeroFrozenDrone && (
+                  <div
+                    className="absolute -inset-4 bg-cyan-300/40 border-2 border-white shadow-[0_0_35px_#38bdf8] backdrop-blur-2xs flex items-center justify-center z-35 animate-pulse"
+                    style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
+                  >
+                    <div className="w-6 h-6 bg-white/80 rotate-45 shadow-[0_0_20px_#ffffff] animate-ping" />
+                  </div>
+                )}
+
+                {/* 8 Razor-Sharp Frost Shards Slicing Outward on Shatter */}
+                {zeroIceShatterBurst && (
+                  <div className="absolute -inset-10 flex items-center justify-center pointer-events-none z-35">
+                    {[
+                      { tx: "50px", ty: "-50px", rot: "45deg" },
+                      { tx: "-50px", ty: "-50px", rot: "-45deg" },
+                      { tx: "60px", ty: "0px", rot: "90deg" },
+                      { tx: "-60px", ty: "0px", rot: "-90deg" },
+                      { tx: "45px", ty: "50px", rot: "135deg" },
+                      { tx: "-45px", ty: "50px", rot: "-135deg" },
+                      { tx: "0px", ty: "-60px", rot: "0deg" },
+                      { tx: "0px", ty: "60px", rot: "180deg" },
+                    ].map((shard, i) => (
+                      <div
+                        key={i}
+                        className="absolute w-3 h-8 bg-gradient-to-t from-cyan-400 via-white to-transparent shadow-[0_0_20px_#a5f3fc] animate-ice-shard"
+                        style={{
+                          clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)",
+                          "--tx": shard.tx,
+                          "--ty": shard.ty,
+                          "--rot": shard.rot,
+                        } as React.CSSProperties}
+                      />
+                    ))}
                   </div>
                 )}
 
@@ -2096,20 +2732,75 @@ export function MegaManBattleScene() {
               </div>
             </div>
 
+            {/* Tactical Kenwaza Selector Dock for Zero */}
+            <div className="mt-2.5 flex items-center justify-between bg-slate-950/90 border border-slate-800 p-1.5 rounded-xs">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <button
+                  type="button"
+                  onClick={(e) => handleSelectZeroWeapon("saber", e)}
+                  className={`px-1.5 sm:px-2 py-1 text-[10px] font-black font-mono border transition-all cursor-pointer ${
+                    zeroActiveWeapon === "saber"
+                      ? "bg-emerald-500 text-black border-emerald-300 shadow-[0_0_10px_#10b981]"
+                      : "bg-slate-900 text-emerald-400/80 border-slate-700 hover:border-emerald-500"
+                  }`}
+                >
+                  [Z-S] SABER
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleSelectZeroWeapon("hyouryuu", e)}
+                  className={`px-1.5 sm:px-2 py-1 text-[10px] font-black font-mono border transition-all cursor-pointer ${
+                    zeroActiveWeapon === "hyouryuu"
+                      ? "bg-cyan-400 text-black border-cyan-200 shadow-[0_0_10px_#22d3ee]"
+                      : "bg-slate-900 text-cyan-400/80 border-slate-700 hover:border-cyan-500"
+                  }`}
+                >
+                  [H-R] HYOURYUU
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => handleSelectZeroWeapon("rekkoha", e)}
+                  className={`px-1.5 sm:px-2 py-1 text-[10px] font-black font-mono border transition-all cursor-pointer ${
+                    zeroActiveWeapon === "rekkoha"
+                      ? "bg-amber-400 text-black border-amber-200 shadow-[0_0_10px_#f59e0b]"
+                      : "bg-slate-900 text-amber-400/80 border-slate-700 hover:border-amber-500"
+                  }`}
+                >
+                  [R-K] REKKOHA
+                </button>
+              </div>
+
+              {/* Weapon Energy Gauge */}
+              <div className="flex items-center gap-1.5 pr-1">
+                <span className="text-[9px] font-mono font-bold text-rose-300">WE:</span>
+                <div className="w-12 sm:w-16 h-2 bg-slate-900 border border-slate-700 p-[1px]">
+                  <div
+                    className="h-full bg-gradient-to-r from-rose-500 to-amber-400 transition-all duration-150"
+                    style={{ width: `${(zeroWeaponEnergy / 28) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[9px] font-mono font-bold text-rose-400">{zeroWeaponEnergy}</span>
+              </div>
+            </div>
+
             {/* Interactive Attack Buttons */}
-            <div className="mt-3 grid grid-cols-2 gap-2">
+            <div className="mt-2.5 grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={handleZeroTeleportCombo}
-                disabled={zeroState !== "idle"}
+                onClick={handleZeroAttack}
+                disabled={zeroState !== "idle" || zeroHyouryuuActive || zeroRekkohaActive}
                 className="py-2 px-3 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-bold text-xs border-2 border-rose-300 shadow-[2px_2px_0px_0px_#991b1b] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer disabled:opacity-50"
               >
-                [ ⚔️ Z-SABER SLASH ]
+                {zeroActiveWeapon === "hyouryuu"
+                  ? "[ ❄️ HYOURYUUSHOU ]"
+                  : zeroActiveWeapon === "rekkoha"
+                  ? "[ ✨ REKKOHA ]"
+                  : "[ ⚔️ Z-SABER SLASH ]"}
               </button>
               <button
                 type="button"
                 onClick={handleZeroIaidoSlash}
-                disabled={zeroState !== "idle"}
+                disabled={zeroState !== "idle" || zeroHyouryuuActive || zeroRekkohaActive}
                 className="py-2 px-3 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-xs border-2 border-emerald-200 shadow-[2px_2px_0px_0px_#047857] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer disabled:opacity-50"
               >
                 [ ⚡ IAIDO FLASH DASH ]
