@@ -54,9 +54,9 @@ export function MegaManBattleScene() {
   const [xCharging, setXCharging] = useState(false);
   const [plasmaSupernovaBlast, setPlasmaSupernovaBlast] = useState(false);
 
-  // ================= DIVE ARMOR UPGRADE & DUAL CROSS GAUGE =================
-  const [diveArmorActive, setDiveArmorActive] = useState(false);
-  const [diveArmorTransforming, setDiveArmorTransforming] = useState(false);
+  // ================= ELEMENTAL CHIPS & DUAL CROSS GAUGE =================
+  const [activeChip, setActiveChip] = useState<"NORMAL" | "FIRE" | "ICE">("NORMAL");
+  const [eTankCount, setETankCount] = useState(2);
   const [dualGauge, setDualGauge] = useState(65);
   const [dualFinisherActive, setDualFinisherActive] = useState(false);
   const [dualFinisherPhase, setDualFinisherPhase] = useState<"idle" | "boss_parry" | "x_rapid" | "zero_combo" | "x_charge_sky" | "boss_death" | "victory">("idle");
@@ -71,36 +71,31 @@ export function MegaManBattleScene() {
   const [bossParryClash, setBossParryClash] = useState<"idle" | "waves_flying" | "deflected" | "detonated">("idle");
   const [dualDamageText, setDualDamageText] = useState<string | null>(null);
 
-  // Toggle / Activate DiVE Armor Upgrade for X & Zero
-  const handleToggleDiveArmor = (e?: React.MouseEvent) => {
+  // Use E-Tank for instant full recovery and EXP boost
+  const handleUseETank = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    if (dualFinisherActive) return;
+    if (eTankCount <= 0) return;
+    setETankCount((prev) => prev - 1);
+    sfx.levelUp();
+    setXScore((s) => s + 300);
+    setZeroScore((s) => s + 300);
+    setDualGauge(100);
+  };
 
-    if (!diveArmorActive) {
-      setDiveArmorTransforming(true);
-      setDiveArmorActive(true);
-      sfx.levelUp();
-      sfx.chargeHum();
-      sfx.dimensionShatter();
-      setDualGauge(100);
-      setXScore((s) => s + 500);
-      setZeroScore((s) => s + 500);
-      setTimeout(() => {
-        setDiveArmorTransforming(false);
-      }, 1000);
-    } else {
-      setDiveArmorActive(false);
-      sfx.chargeHum();
-    }
+  // Change Elemental Chip
+  const handleSelectChip = (chip: "NORMAL" | "FIRE" | "ICE", e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setActiveChip(chip);
+    sfx.chargeHum();
   };
 
   // ================= X ACTIONS =================
   const spawnXDamage = (dmg: number, isCrit = false) => {
-    const armorBonus = diveArmorActive ? 55 : 0;
-    const totalDmg = dmg + armorBonus;
+    const chipBonus = activeChip === "FIRE" ? 15 : activeChip === "ICE" ? 10 : 0;
+    const totalDmg = dmg + chipBonus;
     const newText = { id: Date.now() + Math.random(), text: isCrit ? `CRITICAL -${totalDmg}!` : `-${totalDmg}`, isCrit };
     setXDamageTexts((prev) => [...prev.slice(-3), newText]);
-    setDualGauge((prev) => Math.min(100, prev + 15));
+    setDualGauge((prev) => Math.min(100, prev + 12));
     setTimeout(() => {
       setXDamageTexts((prev) => prev.filter((t) => t.id !== newText.id));
     }, 700);
@@ -126,7 +121,7 @@ export function MegaManBattleScene() {
       setTimeout(() => setMetoolHit(false), 150);
 
       setMetoolHp((prev) => {
-        const next = prev - (diveArmorActive ? 85 : 35);
+        const next = prev - (activeChip === "FIRE" ? 50 : 35);
         if (next <= 0) {
           triggerMetoolDefeat();
           return 0;
@@ -190,7 +185,7 @@ export function MegaManBattleScene() {
         }, 400);
 
         setMetoolHp((prev) => {
-          const next = prev - (diveArmorActive ? 240 : 140);
+          const next = prev - (activeChip === "FIRE" ? 160 : 140);
           if (next <= 0) {
             triggerMetoolDefeat();
             return 0;
@@ -226,8 +221,8 @@ export function MegaManBattleScene() {
 
   // ================= ZERO ACTIONS =================
   const spawnZeroDamage = (dmg: number, isCrit = false) => {
-    const armorBonus = diveArmorActive ? 65 : 0;
-    const totalDmg = dmg + armorBonus;
+    const chipBonus = activeChip === "FIRE" ? 20 : activeChip === "ICE" ? 15 : 0;
+    const totalDmg = dmg + chipBonus;
     const newText = { id: Date.now() + Math.random(), text: isCrit ? `IAIDO CRIT -${totalDmg}!` : `-${totalDmg}`, isCrit };
     setZeroDamageTexts((prev) => [...prev.slice(-3), newText]);
     setDualGauge((prev) => Math.min(100, prev + 15));
@@ -625,26 +620,49 @@ export function MegaManBattleScene() {
             <span className="tracking-wider">CAPCOM 16-BIT HUNTERS ARENA</span>
           </div>
 
-          {/* DIVE ARMOR UPGRADE DOCK */}
-          <div className="flex items-center gap-2">
+          {/* ELEMENT CHIP UPGRADE DOCK */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] text-slate-400 font-bold mr-1">CHIP:</span>
             <button
               type="button"
-              onClick={handleToggleDiveArmor}
-              disabled={dualFinisherActive}
-              className={`px-3 py-1.5 text-[11px] font-black border-2 transition-all cursor-pointer flex items-center gap-1.5 rounded-xs ${
-                diveArmorActive
-                  ? "bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-300 text-black border-white shadow-[0_0_25px_#38bdf8] animate-pulse scale-105"
-                  : "bg-slate-900 text-cyan-400 border-cyan-500/60 hover:border-cyan-300 hover:text-cyan-200 hover:shadow-[0_0_15px_#22d3ee]"
+              onClick={(e) => handleSelectChip("NORMAL", e)}
+              className={`px-2 py-1 text-[10px] font-black border transition-all cursor-pointer ${
+                activeChip === "NORMAL"
+                  ? "bg-cyan-500 text-black border-cyan-300 shadow-[0_0_10px_#06b6d4]"
+                  : "bg-slate-900 text-slate-400 border-slate-700 hover:border-cyan-400 hover:text-cyan-300"
               }`}
             >
-              <Sparkles className={`w-3.5 h-3.5 ${diveArmorActive ? "text-amber-900 animate-spin" : "text-cyan-400"}`} />
-              <span>
-                {diveArmorTransforming
-                  ? "⚡ UPGRADING DIVE ARMOR..."
-                  : diveArmorActive
-                  ? "💠 DIVE ARMOR: ACTIVE [MAX]"
-                  : "⚡ UPGRADE DIVE ARMOR"}
-              </span>
+              ⚡ NORMAL
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleSelectChip("FIRE", e)}
+              className={`px-2 py-1 text-[10px] font-black border transition-all cursor-pointer ${
+                activeChip === "FIRE"
+                  ? "bg-orange-500 text-black border-orange-300 shadow-[0_0_12px_#f97316]"
+                  : "bg-slate-900 text-slate-400 border-slate-700 hover:border-orange-500 hover:text-orange-400"
+              }`}
+            >
+              🔥 NOVA FLAME
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleSelectChip("ICE", e)}
+              className={`px-2 py-1 text-[10px] font-black border transition-all cursor-pointer ${
+                activeChip === "ICE"
+                  ? "bg-sky-400 text-black border-sky-200 shadow-[0_0_12px_#38bdf8]"
+                  : "bg-slate-900 text-slate-400 border-slate-700 hover:border-sky-400 hover:text-sky-300"
+              }`}
+            >
+              ❄️ FROST ZERO
+            </button>
+            <button
+              type="button"
+              onClick={handleUseETank}
+              disabled={eTankCount <= 0}
+              className="px-2 py-1 text-[10px] font-black bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white border border-emerald-300 shadow-[0_0_8px_#10b981] disabled:opacity-40 transition-all cursor-pointer"
+            >
+              🧪 E-TANK ({eTankCount})
             </button>
           </div>
 
@@ -886,13 +904,13 @@ export function MegaManBattleScene() {
                     teleportingOut ? "animate-character-beam-out" : "animate-in zoom-in-95 duration-200"
                   }`}
                 >
-                  <div className={`relative w-28 h-28 sm:w-36 sm:h-36 ${diveArmorActive ? "dive-armor-aura" : ""}`}>
+                  <div className={`relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28 ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}>
                     <Image
-                      src={diveArmorActive ? "/assets/sprites/dive_armor_x.png" : "/assets/sprites/megaman_x.png"}
+                      src="/assets/sprites/megaman_x.png"
                       alt="Mega Man X Victory Pose"
                       fill
-                      sizes="150px"
-                      className={`object-contain ${diveArmorActive ? "drop-shadow-[0_0_40px_#38bdf8]" : "drop-shadow-[0_0_30px_#38bdf8]"}`}
+                      sizes="140px"
+                      className="object-contain drop-shadow-[0_0_30px_#38bdf8]"
                       priority
                     />
                     {!teleportingOut && (
@@ -900,7 +918,7 @@ export function MegaManBattleScene() {
                     )}
                   </div>
                   <span className="text-[10px] font-black text-cyan-300 mt-1 bg-black/90 px-2.5 py-0.5 border border-cyan-400">
-                    {diveArmorActive ? "DIVE ARMOR X: SSS-RANK!" : "MEGA MAN X: S-RANK!"}
+                    MEGA MAN X: S-RANK!
                   </span>
                 </div>
               ) : (
@@ -941,7 +959,7 @@ export function MegaManBattleScene() {
                     </div>
                   )}
 
-                  <div className={`relative w-28 h-28 sm:w-36 sm:h-36 ${diveArmorActive ? "dive-armor-aura" : ""}`}>
+                  <div className={`relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28 ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}>
                     {/* Full-Body Escalating Power Charge Aura */}
                     {xDualChargeTier > 0 && (
                       <div
@@ -956,33 +974,37 @@ export function MegaManBattleScene() {
                     )}
 
                     <Image
-                      src={diveArmorActive ? "/assets/sprites/dive_armor_x.png" : "/assets/sprites/megaman_x.png"}
+                      src="/assets/sprites/megaman_x.png"
                       alt="Mega Man X Dual Finisher Stance"
                       fill
-                      sizes="150px"
-                      className={`object-contain ${diveArmorActive ? "drop-shadow-[0_0_35px_#38bdf8]" : "drop-shadow-[0_0_25px_#06b6d4]"}`}
+                      sizes="140px"
+                      className="object-contain drop-shadow-[0_0_25px_#06b6d4]"
                       priority
                     />
 
-                    {/* PRECISE BUSTER NOZZLE ANCHOR (left: 95%, top: 38% - Identical to Solo Mode) */}
-                    <div className="absolute left-[95%] top-[38%] -translate-y-1/2 pointer-events-none z-30">
+                    {/* PRECISE BUSTER NOZZLE ANCHOR (left: 98%, top: 36.8%) */}
+                    <div className="absolute left-[98%] top-[36.8%] -translate-y-1/2 pointer-events-none z-30">
                       {/* Buster Nozzle Muzzle Flare */}
                       {(dualFinisherPhase === "x_rapid" || dualFinisherPhase === "x_charge_sky") && (
-                        <div className="w-8 h-8 -ml-4 -mt-4 rounded-full bg-cyan-300 shadow-[0_0_20px_#38bdf8] animate-ping" />
+                        <div className={`w-6 h-6 -ml-3 rounded-full bg-cyan-300 shadow-[0_0_20px_#38bdf8] animate-ping ${dualFinisherPhase === "x_rapid" ? "-mt-4" : "-mt-3"}`} />
                       )}
 
                       {/* Phase 1: Rapid Normal Buster Pellets (Identical Visual to Solo Mode) */}
                       {dualFinisherPhase === "x_rapid" && (
-                        <div className="relative">
+                        <div className="relative -top-1">
                           {[0, 80, 160, 240].map((delay, idx) => (
                             <div
                               key={idx}
-                              className="absolute left-0 top-0 -translate-y-1/2 flex items-center gap-1 animate-x-dual-rapid"
-                              style={{ animationDelay: `${delay}ms` }}
+                              className="absolute left-0 top-0 -translate-y-1/2 flex items-center"
                             >
-                              {/* Authentic Multi-layer Lemon Buster Pellet */}
-                              <div className="w-6 h-4 bg-gradient-to-r from-cyan-400 via-sky-300 to-white rounded-full shadow-[0_0_14px_#38bdf8]" />
-                              <div className="w-2.5 h-2.5 -ml-1 bg-white rounded-full shadow-[0_0_10px_#ffffff]" />
+                              <div
+                                className="flex items-center gap-1 animate-x-dual-rapid"
+                                style={{ animationDelay: `${delay}ms` }}
+                              >
+                                {/* Authentic Multi-layer Lemon Buster Pellet */}
+                                <div className="w-6 h-4 bg-gradient-to-r from-cyan-400 via-sky-300 to-white rounded-full shadow-[0_0_14px_#38bdf8]" />
+                                <div className="w-2.5 h-2.5 -ml-1 bg-white rounded-full shadow-[0_0_10px_#ffffff]" />
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -1015,7 +1037,7 @@ export function MegaManBattleScene() {
                     
                     {/* Phase 2: High-Concentration Pre-Shot Solar Plasma Ball growing at Buster Nozzle */}
                     {xDualChargeTier > 0 && (
-                      <div className="absolute left-[95%] top-[38%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30 flex items-center justify-center">
+                      <div className="absolute left-[98%] top-[36.8%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-30 flex items-center justify-center">
                         <div
                           className={`rounded-full border-2 border-dashed animate-spin transition-all duration-300 ${
                             xDualChargeTier === 3
@@ -1039,7 +1061,7 @@ export function MegaManBattleScene() {
 
                     {/* Mega Man X Charged Shield Deflection Flash */}
                     {bossParryClash === "deflected" && (
-                      <div className="absolute left-[95%] top-[38%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-40 animate-parry-flash">
+                      <div className="absolute left-[98%] top-[36.8%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-40 animate-parry-flash">
                         <div className="w-20 h-20 rounded-full border-4 border-cyan-300 bg-cyan-400/40 shadow-[0_0_50px_#22d3ee,inset_0_0_25px_#ffffff] flex items-center justify-center">
                           <div className="w-10 h-10 rounded-full bg-white shadow-[0_0_30px_#ffffff]" />
                         </div>
@@ -1051,8 +1073,6 @@ export function MegaManBattleScene() {
                   <span className="text-[10px] font-black text-cyan-300 mt-1 bg-black/80 px-2 py-0.5 border border-cyan-500">
                     {bossParryClash === "deflected"
                       ? "🛡️ CHARGED SHIELD DEFLECT!"
-                      : diveArmorActive
-                      ? "💠 DIVE ARMOR X (CELESTIAL)"
                       : "MEGA MAN X"}
                   </span>
                 </div>
@@ -1328,13 +1348,13 @@ export function MegaManBattleScene() {
                     teleportingOut ? "animate-character-beam-out" : "animate-in zoom-in-95 duration-200"
                   }`}
                 >
-                  <div className={`relative w-28 h-28 sm:w-36 sm:h-36 ${diveArmorActive ? "dive-armor-aura" : ""}`}>
+                  <div className={`relative w-28 h-28 sm:w-32 sm:h-32 ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}>
                     <Image
-                      src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                      src="/assets/sprites/zero_saber.png"
                       alt="Zero Victory Pose"
                       fill
-                      sizes="150px"
-                      className={`object-contain ${diveArmorActive ? "drop-shadow-[0_0_40px_#ef4444]" : "drop-shadow-[0_0_30px_#ef4444]"}`}
+                      sizes="140px"
+                      className="object-contain drop-shadow-[0_0_30px_#ef4444]"
                       priority
                     />
                     {!teleportingOut && (
@@ -1342,7 +1362,7 @@ export function MegaManBattleScene() {
                     )}
                   </div>
                   <span className="text-[10px] font-black text-rose-300 mt-1 bg-black/90 px-2.5 py-0.5 border border-rose-500">
-                    {diveArmorActive ? "DIVE ARMOR ZERO: SSS-RANK!" : "ZERO: S-RANK!"}
+                    ZERO: S-RANK!
                   </span>
                 </div>
               ) : (
@@ -1351,18 +1371,18 @@ export function MegaManBattleScene() {
                   {/* Strike 1: Directly in Front of Sigma (Left ~37%) */}
                   {dualFinisherPhase === "zero_combo" && zeroStrike === 1 && (
                     <div className="absolute left-[34%] sm:left-[37%] bottom-[10%] z-25 flex flex-col items-center animate-in zoom-in-75 duration-100">
-                      <div className={`relative w-28 h-28 sm:w-36 sm:h-36 ${diveArmorActive ? "dive-armor-aura" : ""}`}>
+                      <div className="relative w-28 h-28 sm:w-32 sm:h-32">
                         <Image
-                          src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                          src="/assets/sprites/zero_saber.png"
                           alt="Zero Front Slash"
                           fill
-                          sizes="150px"
+                          sizes="140px"
                           className="object-contain drop-shadow-[0_0_25px_#10b981]"
                           priority
                         />
                       </div>
                       <span className="text-[9px] font-black text-emerald-300 mt-1 bg-black/80 px-2 py-0.5 border border-emerald-500">
-                        {diveArmorActive ? "DIVE ZERO: CRYSTAL SLASH!" : "ZERO: FRONT RAZOR SLASH!"}
+                        ZERO: FRONT RAZOR SLASH!
                       </span>
                     </div>
                   )}
@@ -1370,18 +1390,18 @@ export function MegaManBattleScene() {
                   {/* Strike 2: Directly Behind Sigma (Left ~63%, Facing Left) */}
                   {dualFinisherPhase === "zero_combo" && zeroStrike === 2 && (
                     <div className="absolute left-[63%] sm:left-[60%] bottom-[10%] z-25 flex flex-col items-center scale-x-[-1] animate-in zoom-in-75 duration-100">
-                      <div className={`relative w-28 h-28 sm:w-36 sm:h-36 ${diveArmorActive ? "dive-armor-aura" : ""}`}>
+                      <div className="relative w-28 h-28 sm:w-32 sm:h-32">
                         <Image
-                          src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                          src="/assets/sprites/zero_saber.png"
                           alt="Zero Back Slash"
                           fill
-                          sizes="150px"
+                          sizes="140px"
                           className="object-contain drop-shadow-[0_0_25px_#ef4444]"
                           priority
                         />
                       </div>
                       <span className="text-[9px] font-black text-rose-300 mt-1 bg-black/80 px-2 py-0.5 border border-rose-500 scale-x-[-1]">
-                        {diveArmorActive ? "DIVE ZERO: BACK CRYSTAL SLASH!" : "ZERO: BACK RAZOR SLASH!"}
+                        ZERO: BACK RAZOR SLASH!
                       </span>
                     </div>
                   )}
@@ -1389,12 +1409,12 @@ export function MegaManBattleScene() {
                   {/* Strike 3: Iaido Focus Stance directly under Sigma */}
                   {dualFinisherPhase === "zero_combo" && zeroStrike === 3 && (
                     <div className="absolute left-1/2 -translate-x-1/2 bottom-[8%] z-25 flex flex-col items-center animate-in zoom-in-90 duration-150">
-                      <div className={`relative w-28 h-28 sm:w-36 sm:h-36 ${diveArmorActive ? "dive-armor-aura" : ""}`}>
+                      <div className="relative w-28 h-28 sm:w-32 sm:h-32">
                         <Image
-                          src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                          src="/assets/sprites/zero_saber.png"
                           alt="Zero Iaido Focus Stance"
                           fill
-                          sizes="150px"
+                          sizes="140px"
                           className="object-contain drop-shadow-[0_0_35px_#10b981] animate-pulse"
                           priority
                         />
@@ -1403,7 +1423,7 @@ export function MegaManBattleScene() {
                         <div className="absolute -inset-8 rounded-full border-2 border-dashed border-teal-300 shadow-[0_0_25px_#2dd4bf] animate-spin pointer-events-none" />
                       </div>
                       <span className="text-[9px] font-black text-emerald-300 mt-1 bg-black/90 px-2.5 py-0.5 border-2 border-emerald-400 shadow-[0_0_20px_#10b981] animate-pulse">
-                        {diveArmorActive ? "⚡ DIVE ZERO: AWAKENED CHARGE..." : "⚡ ZERO: IAIDO FOCUS CHARGE..."}
+                        ⚡ ZERO: IAIDO FOCUS CHARGE...
                       </span>
                     </div>
                   )}
@@ -1411,18 +1431,18 @@ export function MegaManBattleScene() {
                   {/* Strike 4: Iaido Flash Launcher thrusting upwards */}
                   {dualFinisherPhase === "zero_combo" && zeroStrike === 4 && (
                     <div className="absolute left-1/2 -translate-x-1/2 bottom-[6%] z-25 flex flex-col items-center -translate-y-8 animate-in slide-in-from-bottom duration-150">
-                      <div className={`relative w-28 h-28 sm:w-36 sm:h-36 ${diveArmorActive ? "dive-armor-aura" : ""}`}>
+                      <div className="relative w-28 h-28 sm:w-32 sm:h-32">
                         <Image
-                          src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                          src="/assets/sprites/zero_saber.png"
                           alt="Zero Iaido Flash Launcher"
                           fill
-                          sizes="150px"
+                          sizes="140px"
                           className="object-contain drop-shadow-[0_0_40px_#ffffff]"
                           priority
                         />
                       </div>
                       <span className="text-[9px] font-black text-amber-300 mt-1 bg-black/80 px-2 py-0.5 border border-amber-500">
-                        {diveArmorActive ? "⚔️ CELESTIAL RISING DRAGON STRIKE!" : "⚔️ RISING DRAGON SLASH!"}
+                        ⚔️ RISING DRAGON SLASH!
                       </span>
                     </div>
                   )}
@@ -1434,13 +1454,13 @@ export function MegaManBattleScene() {
                         dualIntroLanding ? "animate-character-beam-in" : ""
                       }`}
                     >
-                      <div className={`relative w-28 h-28 sm:w-36 sm:h-36 ${diveArmorActive ? "dive-armor-aura" : ""}`}>
+                      <div className={`relative w-28 h-28 sm:w-32 sm:h-32 ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}>
                         <Image
-                          src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                          src="/assets/sprites/zero_saber.png"
                           alt="Zero Dual Finisher Stance"
                           fill
-                          sizes="150px"
-                          className={`object-contain ${diveArmorActive ? "drop-shadow-[0_0_35px_#ef4444]" : "drop-shadow-[0_0_25px_#ef4444]"}`}
+                          sizes="140px"
+                          className="object-contain drop-shadow-[0_0_25px_#ef4444]"
                           priority
                         />
                         {!dualIntroLanding && bossParryClash !== "deflected" && (
@@ -1461,8 +1481,6 @@ export function MegaManBattleScene() {
                       <span className="text-[10px] font-black text-rose-300 mt-1 bg-black/80 px-2 py-0.5 border border-rose-500 scale-x-[-1]">
                         {bossParryClash === "deflected"
                           ? "⚔️ PERFECT Z-PARRY!"
-                          : diveArmorActive
-                          ? "💠 DIVE ARMOR ZERO (AWAKENED)"
                           : "ZERO HUNTER"}
                       </span>
                     </div>
@@ -1486,7 +1504,7 @@ export function MegaManBattleScene() {
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 text-xs text-cyan-400 font-bold">
               <div className="flex items-center gap-1.5">
                 <Zap className="w-4 h-4 text-cyan-400 animate-pulse" />
-                <span>{diveArmorActive ? "UNIT 01: DIVE ARMOR X (CELESTIAL)" : "UNIT 01: MEGA MAN X"}</span>
+                <span>UNIT 01: MEGA MAN X</span>
                 {xCombo > 1 && (
                   <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 border border-cyan-400/40 animate-pulse">
                     COMBO x{xCombo}!
@@ -1564,37 +1582,39 @@ export function MegaManBattleScene() {
 
                     {/* Pixel Art Mega Man X Image */}
                     <div
-                      className={`relative w-28 h-28 sm:w-34 sm:h-34 transition-transform duration-100 ${
+                      className={`relative w-[6.25rem] h-[6.25rem] sm:w-28 sm:h-28 transition-transform duration-100 ${
                         xState === "shooting" ? "animate-x-step-recoil" : ""
-                      } ${diveArmorActive ? "dive-armor-aura" : ""}`}
+                      } ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}
                       style={{ imageRendering: "pixelated" }}
                     >
                       <Image
-                        src={diveArmorActive ? "/assets/sprites/dive_armor_x.png" : "/assets/sprites/megaman_x.png"}
+                        src="/assets/sprites/megaman_x.png"
                         alt="Mega Man X Pixel Art Sprite"
                         fill
-                        sizes="150px"
-                        className={`object-contain ${diveArmorActive ? "drop-shadow-[0_0_20px_#38bdf8]" : "drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]"}`}
+                        sizes="140px"
+                        className="object-contain drop-shadow-[0_0_12px_rgba(6,182,212,0.8)]"
                         priority
                       />
 
                       {/* PRECISE BUSTER NOZZLE FLARE (At tip of X-Buster) */}
                       {xState !== "idle" && (
                         <div
-                          className={`absolute right-[-4px] top-[38%] -translate-y-1/2 w-6 h-6 rounded-full animate-ping pointer-events-none z-30 ${
-                            diveArmorActive
-                              ? "bg-cyan-200 shadow-[0_0_25px_#ffffff,0_0_50px_#38bdf8]"
+                          className={`absolute right-[-2px] top-[36.8%] -translate-y-1/2 w-6 h-6 rounded-full animate-ping pointer-events-none z-30 ${
+                            activeChip === "FIRE"
+                              ? "bg-orange-400 shadow-[0_0_16px_#f97316]"
+                              : activeChip === "ICE"
+                              ? "bg-sky-300 shadow-[0_0_16px_#38bdf8]"
                               : "bg-cyan-300 shadow-[0_0_16px_#38bdf8]"
                           }`}
                         />
                       )}
 
                       {/* PROJECTILES ORIGINATING FORWARD DIRECTLY FROM BUSTER NOZZLE */}
-                      <div className="absolute left-[95%] top-[38%] -translate-y-1/2 pointer-events-none z-20">
+                      <div className="absolute left-[98%] top-[36.8%] -translate-y-1/2 pointer-events-none z-20">
                         {xProjectiles.map((p) => (
                           <div key={p.id} className="absolute left-0 top-0 -translate-y-1/2">
                             {p.type === "plasma" ? (
-                              /* Epic Capcom Mega Man X Giga Plasma Comet / DiVE Nova */
+                              /* Epic Capcom Mega Man X Giga Plasma Comet */
                               <div className="relative flex items-center animate-plasma">
                                 {/* Blazing Aerodynamic Plasma Trail */}
                                 <div className="absolute -left-20 w-28 h-10 bg-gradient-to-r from-transparent via-cyan-400 to-purple-600 rounded-full blur-xs opacity-90" />
@@ -1615,13 +1635,15 @@ export function MegaManBattleScene() {
                                   <div className="absolute bottom-1 left-2 w-4 h-4 rounded-full bg-cyan-300 shadow-[0_0_12px_#38bdf8] animate-ping" />
                                 </div>
                               </div>
-                            ) : diveArmorActive ? (
-                              /* DiVE Celestial Prismatic Laser Pellet */
-                              <div className="flex items-center gap-1.5 animate-bullet">
-                                <div className="w-10 sm:w-12 h-5 sm:h-6 bg-gradient-to-r from-cyan-300 via-white to-amber-300 rounded-full shadow-[0_0_25px_#38bdf8,0_0_40px_#fde047] border border-white flex items-center justify-center">
-                                  <div className="w-3 h-2 bg-cyan-100 rounded-full shadow-[0_0_10px_#ffffff]" />
-                                </div>
-                                <div className="w-4 h-4 rounded-full bg-cyan-300 shadow-[0_0_15px_#38bdf8] animate-ping" />
+                            ) : activeChip === "FIRE" ? (
+                              /* Blazing Fire Bullet */
+                              <div className="flex items-center gap-1 animate-bullet">
+                                <div className="w-6 h-4 bg-gradient-to-r from-orange-500 via-amber-300 to-white rounded-full shadow-[0_0_16px_#f97316]" />
+                              </div>
+                            ) : activeChip === "ICE" ? (
+                              /* Frozen Crystal Bullet */
+                              <div className="flex items-center gap-1 animate-bullet">
+                                <div className="w-6 h-4 bg-gradient-to-r from-sky-400 via-cyan-200 to-white rounded-full shadow-[0_0_16px_#38bdf8]" />
                               </div>
                             ) : (
                               /* Rapid Lemon Pellets */
@@ -1748,7 +1770,7 @@ export function MegaManBattleScene() {
                     : "bg-amber-500 hover:bg-amber-400 active:bg-amber-600 border-amber-200"
                 }`}
               >
-                {xCharging ? "[ ⚡ CHARGING... ]" : diveArmorActive ? "[ 💠 DIVE GIGA NOVA ]" : "[ 💥 CHARGE GIGA PLASMA ]"}
+                {xCharging ? "[ ⚡ CHARGING... ]" : "[ 💥 CHARGE GIGA PLASMA ]"}
               </button>
             </div>
           </div>
@@ -1764,7 +1786,7 @@ export function MegaManBattleScene() {
             <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800 text-xs text-rose-400 font-bold">
               <div className="flex items-center gap-1.5">
                 <Flame className="w-4 h-4 text-rose-500 animate-pulse" />
-                <span>{diveArmorActive ? "UNIT 02: DIVE ARMOR ZERO (AWAKENED)" : "UNIT 02: ZERO (MAVERICK HUNTER)"}</span>
+                <span>UNIT 02: ZERO (MAVERICK HUNTER)</span>
                 {zeroCombo > 1 && (
                   <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 border border-rose-400/40 animate-pulse">
                     COMBO x{zeroCombo}!
@@ -1826,31 +1848,33 @@ export function MegaManBattleScene() {
                         {/* HUD Stance Text */}
                         <div className="absolute -top-10 inset-x-0 flex justify-center">
                           <span className="text-[10px] font-black text-emerald-300 bg-black/90 px-2 py-0.5 border border-emerald-400 shadow-[0_0_12px_#10b981] tracking-wider animate-pulse">
-                            {diveArmorActive ? "⚡ DIVE AWAKENED FOCUS" : "⚡ IAIDO FOCUS STANCE"}
+                            ⚡ IAIDO FOCUS STANCE
                           </span>
                         </div>
                       </div>
                     )}
 
                     <div
-                      className={`relative w-28 h-28 sm:w-34 sm:h-34 transition-opacity duration-100 ${
+                      className={`relative w-28 h-28 sm:w-32 sm:h-32 transition-opacity duration-100 ${
                         zeroTeleportPhase !== 0 ? "opacity-0 scale-90" : "opacity-100 scale-100"
-                      } ${diveArmorActive ? "dive-armor-aura" : ""}`}
+                      } ${activeChip === "FIRE" ? "flame-aura" : activeChip === "ICE" ? "ice-aura" : ""}`}
                       style={{ imageRendering: "pixelated" }}
                     >
                       <Image
-                        src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                        src="/assets/sprites/zero_saber.png"
                         alt="Zero Z-Saber Pixel Art Sprite"
                         fill
-                        sizes="150px"
-                        className={`object-contain ${diveArmorActive ? "drop-shadow-[0_0_20px_#ef4444]" : "drop-shadow-[0_0_14px_rgba(239,68,68,0.85)]"}`}
+                        sizes="140px"
+                        className="object-contain drop-shadow-[0_0_14px_rgba(239,68,68,0.85)]"
                         priority
                       />
                       {/* Glowing Saber Pulse */}
                       <div
                         className={`absolute top-4 right-0 w-8 h-8 rounded-full blur-xs animate-pulse pointer-events-none ${
-                          diveArmorActive
-                            ? "bg-gradient-to-r from-emerald-400 via-cyan-300 to-amber-300 shadow-[0_0_25px_#10b981,0_0_45px_#22d3ee]"
+                          activeChip === "FIRE"
+                            ? "bg-orange-400/50 shadow-[0_0_12px_#f97316]"
+                            : activeChip === "ICE"
+                            ? "bg-sky-400/50 shadow-[0_0_12px_#38bdf8]"
                             : "bg-emerald-400/30"
                         }`}
                       />
@@ -1864,8 +1888,10 @@ export function MegaManBattleScene() {
                 <div className="absolute left-4 top-[48%] -translate-y-1/2 w-[85%] h-2.5 pointer-events-none z-20">
                   <div
                     className={`w-full h-full animate-iaido-trail ${
-                      diveArmorActive
-                        ? "bg-gradient-to-r from-cyan-300 via-emerald-400 to-amber-300 shadow-[0_0_45px_#38bdf8,0_0_70px_#10b981]"
+                      activeChip === "FIRE"
+                        ? "bg-gradient-to-r from-orange-500 via-amber-300 to-transparent shadow-[0_0_35px_#f97316]"
+                        : activeChip === "ICE"
+                        ? "bg-gradient-to-r from-sky-400 via-cyan-200 to-transparent shadow-[0_0_35px_#38bdf8]"
                         : "bg-gradient-to-r from-emerald-500 via-white to-transparent shadow-[0_0_30px_#10b981]"
                     }`}
                   />
@@ -1878,7 +1904,7 @@ export function MegaManBattleScene() {
                 {zeroTeleportPhase === 1 && (
                   <div className="absolute -top-16 -left-8 w-24 h-24 sm:w-28 sm:h-28 z-30 animate-in zoom-in-50 duration-100 rotate-12 drop-shadow-[0_0_25px_#22c55e]">
                     <Image
-                      src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                      src="/assets/sprites/zero_saber.png"
                       alt="Zero Aerial Downward Strike"
                       fill
                       sizes="120px"
@@ -1894,7 +1920,7 @@ export function MegaManBattleScene() {
                 {zeroTeleportPhase === 2 && (
                   <div className="absolute -top-4 -right-16 w-24 h-24 sm:w-28 sm:h-28 z-30 animate-in zoom-in-50 duration-100 -scale-x-100 drop-shadow-[0_0_25px_#ef4444]">
                     <Image
-                      src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                      src="/assets/sprites/zero_saber.png"
                       alt="Zero Backstab Strike"
                       fill
                       sizes="120px"
@@ -1910,7 +1936,7 @@ export function MegaManBattleScene() {
                 {zeroTeleportPhase === 3 && (
                   <div className="absolute -top-6 -left-16 w-28 h-28 sm:w-32 sm:h-32 z-30 animate-in zoom-in-75 duration-100 scale-110 drop-shadow-[0_0_35px_#22c55e]">
                     <Image
-                      src={diveArmorActive ? "/assets/sprites/dive_armor_zero.png" : "/assets/sprites/zero_saber.png"}
+                      src="/assets/sprites/zero_saber.png"
                       alt="Zero Rising Uppercut Finisher"
                       fill
                       sizes="140px"
@@ -2023,7 +2049,7 @@ export function MegaManBattleScene() {
                 disabled={zeroState !== "idle"}
                 className="py-2 px-3 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white font-bold text-xs border-2 border-rose-300 shadow-[2px_2px_0px_0px_#991b1b] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer disabled:opacity-50"
               >
-                {diveArmorActive ? "[ 💠 DIVE CRYSTAL COMBO ]" : "[ ⚡ OMNISLASH COMBO ]"}
+                [ ⚔️ Z-SABER SLASH ]
               </button>
               <button
                 type="button"
@@ -2031,7 +2057,7 @@ export function MegaManBattleScene() {
                 disabled={zeroState !== "idle"}
                 className="py-2 px-3 bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-xs border-2 border-emerald-200 shadow-[2px_2px_0px_0px_#047857] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer disabled:opacity-50"
               >
-                {diveArmorActive ? "[ 💠 CELESTIAL DRAGON SLASH ]" : "[ 🗡️ IAIDO FLASH SLASH ]"}
+                [ ⚡ IAIDO FLASH DASH ]
               </button>
             </div>
           </div>
